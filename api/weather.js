@@ -334,14 +334,15 @@ export default async function handler(req, res) {
       .then(r => r.ok ? r.text() : '')
       .then(h => { htmlEN = h; }).catch(() => {}),
 
-    fetch(`${BASE}/n1.php`, { headers: HEADERS, signal: timer(8000) })
+      //fetch(`${BASE}/n1.php`, { headers: HEADERS, signal: timer(8000) })
+      fetch(`${BASE}/n1.php`, { headers: HEADERS, signal: timer(8000) })
       .then(r => r.ok ? r.text() : '')
       .then(h => { htmlN1 = h; }).catch(() => {}),
   ]);
 
   const nearbyStations = parseNearbyStations(htmlSL || htmlEN);
   const arsoStations   = parseArsoStations(htmlSL || htmlEN);
-  const forecast = parseForecast(htmlN1);
+  const forecast = parseForecast(htmlN1 || htmlEN);
 
   res.status(200).json({
     ...(weatherData || {}),
