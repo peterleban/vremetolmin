@@ -17,13 +17,13 @@ function translateForecast(text) {
     .replace(/Clear/gi, 'Jasno')
     .replace(/Sunny/gi, 'Sončno')
     .replace(/Cloudy/gi, 'Oblačno')
-    .replace(/Overcast/gi, 'Pokrito')
+    .replace(/Overcast/gi, 'Oblačno')
     .replace(/Rain/gi, 'Dež')
     .replace(/Showers/gi, 'Plohe')
     .replace(/Thunderstorm/gi, 'Nevihta')
     .replace(/Snow/gi, 'Sneg')
     .replace(/Fog/gi, 'Megla')
-    .replace(/Windy/gi, 'Vetrovito')
+    .replace(/Windy/gi, 'Vetrovno')
     .replace(/Warm/gi, 'Toplo').replace(/Hot/gi, 'Vroče').replace(/Cool/gi, 'Hladno').replace(/Cold/gi, 'Mrzlo')
     .replace(/High[:\s]+(-?\d+)°?/gi, 'Maks. $1°')
     .replace(/Low[:\s]+(-?\d+)°?/gi, 'Min. $1°')
@@ -68,7 +68,7 @@ const THEMES = {
     orb: 'radial-gradient(ellipse 70% 35% at 50% 5%,rgba(180,200,220,.35) 0%,rgba(140,165,185,.15) 50%,transparent 72%)',
     card:'rgba(255,255,255,0.42)', cardBorder:'rgba(255,255,255,0.58)',
     tabBar:'rgba(255,255,255,0.58)', tabBarBorder:'rgba(160,180,200,0.3)',
-    accent:'#334e68', textPrimary:'#f0f4f8', textMuted:'#c8d8e8', textDim:'#90a8b8',
+    accent:'#334e68', textPrimary:'#e9f1f7', textMuted:'#b9cbe0', textDim:'#7f96aa',
     heroTemp:'#ffffff', heroLow:'#bfdbfe', heroHigh:'#fecaca', heroDew:'#e0e8f0', label:'OBLAČNO ☁️',
   },
   rain: {
@@ -108,7 +108,7 @@ const THEMES = {
     orb: 'radial-gradient(ellipse 80% 40% at 50% 5%,rgba(210,220,230,.4) 0%,rgba(180,195,210,.18) 50%,transparent 72%)',
     card:'rgba(255,255,255,0.50)', cardBorder:'rgba(255,255,255,0.68)',
     tabBar:'rgba(255,255,255,0.68)', tabBarBorder:'rgba(150,170,190,0.3)',
-    accent:'#2d4a5a', textPrimary:'#f0f4f8', textMuted:'#c0d0dc', textDim:'#8898a8',
+    accent:'#2d4a5a', textPrimary:'#243746', textMuted:'#4f6474', textDim:'#708090',
     heroTemp:'#ffffff', heroLow:'#bfdbfe', heroHigh:'#fca5a5', heroDew:'#d8e8f0', label:'MEGLA 🌫️',
   },
 }
@@ -402,7 +402,6 @@ export default function App() {
         {tab==='zdaj'&&(
           <div className="fade-up" style={{padding:'4px 15px 0'}}>
             <div style={{padding:'16px 4px 14px'}}>
-              <div style={{fontSize:11,color:T.textDim,marginBottom:2}}>Dolina Tolminke · Slovenija</div>
               <div style={{display:'flex',alignItems:'flex-end',gap:4}}>
                 {loading
                   ?<div style={{width:130,height:76,borderRadius:8,background:T.card,animation:'pulse 1.5s infinite'}}/>
@@ -413,7 +412,6 @@ export default function App() {
               <div style={{display:'flex',gap:14,marginTop:6,flexWrap:'wrap'}}>
                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:T.heroLow,fontWeight:600,textShadow:'0 1px 6px rgba(0,0,0,0.3)'}}>↓ {tempMin}°</span>
                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:T.heroHigh,fontWeight:600,textShadow:'0 1px 6px rgba(0,0,0,0.3)'}}>↑ {tempMax}°</span>
-                <span style={{fontSize:12,color:T.heroDew,fontWeight:500,textShadow:'0 1px 6px rgba(0,0,0,0.2)'}}>Rosa {dewPoint}°</span>
                 {W.conditionSL&&<span style={{fontSize:12,color:T.accent,fontWeight:500}}>{W.conditionSL}</span>}
               </div>
             </div>
@@ -427,31 +425,41 @@ export default function App() {
               </div>
             </Card>
 
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:11}}>
-              <Card T={T}>
-                <CardTitle icon={<Ico.Sun/>} T={T}>Sončno</CardTitle>
-                <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,color:'#d97706'}}>{d(solar)}<span style={{fontSize:10,color:T.textDim,marginLeft:3}}>W/m²</span></div>
-                <div style={{fontSize:11,color:T.textDim,marginTop:3}}>UV {d(uv)}</div>
-                {W.feelsLike!=null&&<div style={{fontSize:11,color:T.textDim,marginTop:3}}>Občutek {W.feelsLike}°C</div>}
-              </Card>
-              <Card T={T} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,paddingTop:12}}>
-                <CardTitle icon={<Ico.Wind/>} T={T}>Veter</CardTitle>
+            <div style={{marginBottom:11}}>
+            <Card T={T} style={{marginBottom:11}}>
+              <CardTitle icon={<Ico.Wind/>} T={T}>Veter</CardTitle>
+              <div style={{display:'flex',alignItems:'center',gap:20,justifyContent:'center',padding:'8px 0'}}>
                 <WindCompass dir={windDir} T={T}/>
-                <div style={{fontFamily:"'DM Mono',monospace",fontSize:15,marginTop:1,color:T.textPrimary}}>{d(windSpeed)} <span style={{fontSize:10,color:T.textDim}}>km/h</span></div>
-                <div style={{fontSize:11,color:T.textDim}}>{windDir}</div>
-              </Card>
+                <div>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:'#0284c7',marginTop:6}}>{windDir}</div>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:T.textPrimary}}>{d(windSpeed)}</div>
+                  <div style={{fontSize:11,color:T.textDim}}>km/h povp.</div>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:36,color:T.accent,marginTop:6}}>{windGust}</div>
+                  <div style={{fontSize:11,color:T.textDim}}>km/h sunki</div>
+                </div>
+              </div>
+            </Card>
+            </div>
+
+            <div style={{marginBottom:11}}>
+            <Card T={T} style={{marginBottom:11}}>
+            <CardTitle icon={<Ico.Drop/>} T={T}>Padavine</CardTitle>
+               <div  style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10}}>
+               {[['Danes',`${rain} mm`],['Trenutno',`${rainRate} mm/h`]].map(([l,v])=>(
+                <Card key={l} T={T}>
+                  <div style={{fontSize:10,color:T.textDim,textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:6}}>{l}</div>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:'#1d4ed8'}}>{v}</div>
+                </Card>
+              ))}
+              </div>
+            </Card>
             </div>
 
             <Card T={T} style={{marginBottom:11}}>
-              <CardTitle icon={<Ico.Therm/>} right="Davis postaja" T={T}>Temperatura podrobno</CardTitle>
+              <CardTitle icon={<Ico.Therm/>}  T={T}>Temperatura podrobno</CardTitle>
+              <Row label="Rosišče"         value={`${d(dewPoint)}°C`} T={T}/>
               <Row label="Maks. danes"        value={`${d(W.tempMax)}°C`} sub={W.tempMaxTime?`ob ${W.tempMaxTime}`:''} T={T}/>
               <Row label="Min. danes"         value={`${d(W.tempMin)}°C`} sub={W.tempMinTime?`ob ${W.tempMinTime}`:''} T={T}/>
-              <Row label="Rosa točka"         value={`${d(dewPoint)}°C`} T={T}/>
-              <Row label="Občutek toplote"    value={W.feelsLike!=null?`${W.feelsLike}°C`:'—'} T={T}/>
-              <Row label="Vlaga danes maks."  value={W.humMax!=null?`${W.humMax}%`:'—'} sub={W.humMaxTime?`ob ${W.humMaxTime}`:''} T={T}/>
-              <Row label="Vlaga danes min."   value={W.humMin!=null?`${W.humMin}%`:'—'} sub={W.humMinTime?`ob ${W.humMinTime}`:''} T={T}/>
-              <Row label="Včeraj maks."       value={W.tempYestMax!=null?`${W.tempYestMax}°C`:'—'} sub={W.tempYestMaxTime?`ob ${W.tempYestMaxTime}`:''} T={T}/>
-              <Row label="Včeraj min."        value={W.tempYestMin!=null?`${W.tempYestMin}°C`:'—'} T={T}/>
             </Card>
 
             <Card T={T} style={{marginBottom:11}}>
@@ -474,6 +482,8 @@ export default function App() {
                 Kakovost zraka: Dobra
               </div>
             </Card>
+
+
           </div>
         )}
 
