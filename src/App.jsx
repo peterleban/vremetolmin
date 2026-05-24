@@ -467,11 +467,8 @@ export default function App() {
               <Row label="Sončni vzhod"    value={d(W.sunrise)} T={T}/>
               <Row label="Sončni zahod"    value={d(W.sunset)} T={T}/>
               <Row label="Dolžina dneva"   value={d(W.dayLength)} T={T}/>
-              <Row label="Energija danes"  value={W.solarKWhToday!=null?`${W.solarKWhToday}`:'—'} sub={W.solarKWhToday!=null?'kWh':''} T={T}/>
-              <Row label="Energija mesec"  value={W.solarKWhMonth!=null?`${W.solarKWhMonth}`:'—'} sub={W.solarKWhMonth!=null?'kWh':''} T={T}/>
               <Row label="Luna (vzhod)"    value={d(W.moonrise)} T={T}/>
               <Row label="Faza lune"       value={d(W.moonPhase)} T={T}/>
-              <Row label="Osvetljenost"    value={d(W.moonIllum)} T={T}/>
             </Card>
 
             <Card T={T} style={{marginBottom:11}}>

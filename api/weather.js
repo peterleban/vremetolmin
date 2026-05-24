@@ -114,7 +114,7 @@ function parseTagMain(text) {
   const bearing = parseI(f[8]);
 
   // Wind direction from field [28] (pre-built Slovenian string e.g. "JV")
-  const windDirRaw = cleanWD(f[29]) ?? '';
+  const windDirRaw = cleanWD(f[28]) ?? '';
   const windDir = (windDirRaw.length >= 1 && windDirRaw.length <= 4 && /^[A-ZŠŽČJ]+$/i.test(windDirRaw))
     ? windDirRaw.toUpperCase()
     : bearingToSL(bearing);
@@ -145,8 +145,8 @@ function parseTagMain(text) {
     temp:             parseWD(f[3]),
     humidity:         parseI(f[4]),
     dewPoint:         parseWD(f[5]),
-    windSpeed:        parseWD(f[27]),
-    windGust:         parseWD(f[28]),
+    windSpeed:        parseWD(f[26]),
+    windGust:         parseWD(f[27]),
     windBearing:      bearing,
     windDir,
     rain:             parseWD(f[9]),
@@ -156,7 +156,7 @@ function parseTagMain(text) {
     pressureTrend:    pressureTrendText(parseWD(f[12])),
     solar:            parseI(f[13]),
     feelsLike:        parseWD(f[14]),
-    uv:               parseWD(f[15]),
+    uv:               parseWD(f[31]),
     sunrise:          cleanWD(f[16]),
     sunset:           cleanWD(f[17]),
     dayLength:        cleanWD(f[18]),
