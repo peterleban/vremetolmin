@@ -156,7 +156,7 @@ function parseTagMain(text) {
     pressureTrend:    pressureTrendText(parseWD(f[12])),
     solar:            parseI(f[13]),
     feelsLike:        parseWD(f[14]),
-    uv:               parseWD(f[31]),
+    uv:               parseWD(f[29]),
     sunrise:          cleanWD(f[16]),
     sunset:           cleanWD(f[17]),
     dayLength:        cleanWD(f[18]),
@@ -323,17 +323,25 @@ export default async function handler(req, res) {
   }
 
   // Secondary: HTML pages for stations + forecast
-  let htmlSL = '', htmlEN = '';
+  let htmlSL = '', htmlEN = '', htmlN1 = '';
+
   await Promise.all([
     fetch(`${BASE}/`, { headers: HEADERS, signal: timer(8000) })
-      .then(r => r.ok ? r.text() : '').then(h => { htmlSL = h; }).catch(() => {}),
+      .then(r => r.ok ? r.text() : '')
+      .then(h => { htmlSL = h; }).catch(() => {}),
+
     fetch(`${BASE}/index_en.php`, { headers: HEADERS, signal: timer(8000) })
-      .then(r => r.ok ? r.text() : '').then(h => { htmlEN = h; }).catch(() => {}),
+      .then(r => r.ok ? r.text() : '')
+      .then(h => { htmlEN = h; }).catch(() => {}),
+
+    fetch(`${BASE}/n1.php`, { headers: HEADERS, signal: timer(8000) })
+      .then(r => r.ok ? r.text() : '')
+      .then(h => { htmlN1 = h; }).catch(() => {}),
   ]);
 
   const nearbyStations = parseNearbyStations(htmlSL || htmlEN);
   const arsoStations   = parseArsoStations(htmlSL || htmlEN);
-  const forecast       = parseForecast(htmlEN);
+  const forecast = parseForecast(htmlN1);
 
   res.status(200).json({
     ...(weatherData || {}),

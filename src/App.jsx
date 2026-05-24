@@ -575,21 +575,6 @@ export default function App() {
               </Card>
             ))}
             {forecast.updated&&<div style={{fontSize:10,color:T.textDim,marginBottom:12,paddingLeft:4}}>Napoved osvežena: {forecast.updated}</div>}
-            {arso.length>0&&(
-              <Card T={T} style={{marginTop:4}}>
-                <CardTitle icon={<Ico.Pin/>} right="ARSO" T={T}>Uradne postaje</CardTitle>
-                {arso.map((s,i)=>(
-                  <div key={i} style={{display:'grid',gridTemplateColumns:'1.3fr 0.8fr 0.9fr 0.6fr',gap:4,padding:'7px 0',borderBottom:'1px solid rgba(0,0,0,0.07)',alignItems:'baseline'}}>
-                    <span style={{fontSize:12,color:T.textPrimary}}>{s.name}</span>
-                    <span style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:'#d97706'}}>{s.temp||'—'}</span>
-                    <span style={{fontSize:11,color:T.textDim}}>{s.wind&&s.wind!=='-'?s.wind:'—'}</span>
-                    <span style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:'#1d6fa0'}}>{s.rain||'0 mm'}</span>
-                  </div>
-                ))}
-              </Card>
-            )}
-            <p style={{fontSize:10,color:T.textDim,marginTop:12,lineHeight:1.6,padding:'0 4px'}}>
-              Napoved WXSIM (hobi). Ne za nujne primere. Uradna napoved: <a href="https://meteo.si" target="_blank" rel="noopener noreferrer" style={{color:T.accent}}>meteo.si ↗</a>
             </p>
           </div>
         )}
