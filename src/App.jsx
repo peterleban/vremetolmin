@@ -286,11 +286,11 @@ const Ico = {
 }
 
 const TABS = [
-  {id:'zdaj',     label:'Zdaj',     Icon:TabIcons.zdaj},
+  {id:'zdaj',     label:'Trenutno',     Icon:TabIcons.zdaj},
   {id:'veter',    label:'Veter',    Icon:TabIcons.veter},
-  {id:'padavine', label:'Padavine', Icon:TabIcons.padavine},
+  //{id:'padavine', label:'Test',     Icon:Ico.Leaf},
   {id:'napoved',  label:'Napoved',  Icon:TabIcons.napoved},
-  {id:'radar',    label:'Radar',    Icon:TabIcons.radar},
+  {id:'radar',    label:'Kamere',    Icon:Ico.Cam},
   {id:'postaje',  label:'Postaje',  Icon:TabIcons.postaje},
   {id:'donacija', label:'Donacija', Icon:TabIcons.donacija},
 ]
@@ -428,6 +428,8 @@ export default function App() {
   const pressure  = W.pressure   != null ? Math.max(0,W.pressure) : null
   const rain      = W.rain       != null ? Math.max(0,W.rain) : 0
   const rainRate  = W.rainRate   != null ? Math.max(0,W.rainRate) : 0
+  const rainlasth = W.rainlasth  != null ? Math.max(0,W.rainlasth) : 0
+  const rainYest  = W.rainYest   != null ? Math.max(0,W.rainYest) : 0
   const uv        = W.uv         != null ? Math.max(0,W.uv) : null
   const solar     = W.solar      != null ? Math.max(0,W.solar) : null
   const dewPoint  = W.dewPoint   ?? '—'
@@ -471,7 +473,6 @@ export default function App() {
           <div style={{display:'flex',alignItems:'center',gap:7}}>
             <div style={{width:7,height:7,borderRadius:'50%',background:'#16a34a',animation:'blink 2.4s infinite',flexShrink:0}}/>
             <span style={{fontSize:11,color:T.textMuted,letterSpacing:'0.08em',fontFamily:"'DM Mono',monospace"}}>VREME TOLMIN · TOLMINKA</span>
-            <span style={{fontSize:10,color:T.accent,fontWeight:700,marginLeft:4}}>{T.label}</span>
           </div>
           <div style={{fontSize:11,color:T.textDim,marginTop:2,textTransform:'capitalize'}}>{dateStr}</div>
         </div>
@@ -515,8 +516,8 @@ export default function App() {
                 }
               </div>
               <div style={{display:'flex',gap:14,marginTop:6,flexWrap:'wrap'}}>
-                <span style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:T.heroLow,fontWeight:600,textShadow:'0 1px 6px rgba(0,0,0,0.3)'}}>↓ {tempMin}°</span>
-                <span style={{fontFamily:"'DM Mono',monospace",fontSize:13,color:T.heroHigh,fontWeight:600,textShadow:'0 1px 6px rgba(0,0,0,0.3)'}}>↑ {tempMax}°</span>
+                <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroLow,fontWeight:600,textShadow:'0 1px 6px rgba(0,0,0,0.3)'}}>↓ {tempMin}°</span>
+                <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroHigh,fontWeight:600,textShadow:'0 1px 6px rgba(0,0,0,0.3)'}}>↑ {tempMax}°</span>
                 {W.conditionSL&&<span style={{fontSize:12,color:T.accent,fontWeight:500}}>{W.conditionSL}</span>}
               </div>
             </div>
@@ -545,7 +546,7 @@ export default function App() {
                 <WindCompass dir={windDir} T={T}/>
 
                 <div style={{display:'flex',flexDirection:'column'}}>
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:'#0284c7',marginTop:6}}>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:'#0284c7',marginTop:6}}>
                     {windDir}
                   </div>
 
@@ -553,7 +554,7 @@ export default function App() {
                     {d(windSpeed)}
                   </div>
 
-                  <div style={{fontSize:11,color:T.textDim}}>
+                  <div style={{fontSize:14,color:T.textDim}}>
                     km/h povp.
                   </div>
 
@@ -561,12 +562,12 @@ export default function App() {
                     {windGust}
                   </div>
 
-                  <div style={{fontSize:11,color:T.textDim}}>
+                  <div style={{fontSize:14,color:T.textDim}}>
                     km/h sunki
                   </div>
 
                   {/* now at bottom */}
-                  <div style={{fontSize:11,color:T.textDim,marginTop:10}}>
+                  <div style={{fontSize:14,color:T.textDim,marginTop:10}}>
                     Najmočnejši sunek danes: {windMaxToday} km/h
                   </div>
                 </div>
@@ -578,35 +579,39 @@ export default function App() {
             <Card T={T} style={{marginBottom:11}}>
             <CardTitle icon={<Ico.Drop/>} T={T}>Padavine</CardTitle>
                <div  style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 10}}>
-               {[['Danes',`${rain} mm`],['Trenutno',`${rainRate} mm/h`]].map(([l,v])=>(
+               {[['Trenutno',`${rainRate} mm/h`],['Zadnjo uro',`${rainlasth} mm`],['Danes',`${rain} mm`],['Včeraj',`${rainYest} mm`]].map(([l,v])=>(
                 <Card key={l} T={T}>
                   <div style={{fontSize:10,color:T.textDim,textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:6}}>{l}</div>
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:'#1d4ed8'}}>{v}</div>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:18,color:'#1d4ed8'}}>{v}</div>
                 </Card>
               ))}
               </div>
             </Card>
-            </div>
-
-            <Card T={T} style={{marginBottom:11}}>
-              <CardTitle icon={<Ico.Therm/>}  T={T}>Temperatura podrobno</CardTitle>
-              <Row label="Maks. danes"        value={`${d(W.tempMax)}°C`} sub={W.tempMaxTime?`ob ${W.tempMaxTime}`:''} T={T}/>
-              <Row label="Min. danes"         value={`${d(W.tempMin)}°C`} sub={W.tempMinTime?`ob ${W.tempMinTime}`:''} T={T}/>
+            <Card T={T} style={{marginBottom:11,padding:14}}>
+              <CardTitle icon={<Ico.Bolt/>} right='osvežuje se vsakih 5 minut' T={T}>Radarska slika</CardTitle>
+              <div style={{borderRadius:12,overflow:'hidden',background:'rgba(0,0,0,0.08)'}}>
+                <LiveImage src="https://vremetolmin.si/radar.png" alt="Radarska slika"
+                  imgStyle={{borderRadius:12,maxHeight:260,objectFit:'contain'}}
+                  fallbackText="Podatki niso dosegljivi" T={T}/>
+              </div>
+              <div style={{marginTop:6,fontSize:10,color:T.textDim,textAlign:'right'}}>Vir podatkov: ARSO</div>
             </Card>
+            </div>
 
             <Card T={T} style={{marginBottom:11}}>
               <CardTitle icon={<Ico.Sun/>} T={T}>Sonce in luna</CardTitle>
               <Row label="Sončni vzhod"    value={d(W.sunrise)} T={T}/>
               <Row label="Sončni zahod"    value={d(W.sunset)} T={T}/>
               <Row label="Dolžina dneva"   value={d(W.dayLength)} T={T}/>
-              <Row label="Luna (vzhod)"    value={d(W.moonrise)} T={T}/>
-              <Row label="Faza lune"       value={d(W.moonPhase)} T={T}/>
+              <Row label="Lunin vzhod"     value={d(W.moonrise)} T={T}/>
+              <Row label="Lunin zahod"     value={d(W.moonset)} T={T}/>
+              <Row label="Lunina faza"     value={d(W.moonPhase)} T={T}/>
             </Card>
 
             <Card T={T} style={{marginBottom:11}}>
               <CardTitle icon={<Ico.Leaf/>} T={T}>Kakovost zraka</CardTitle>
               <Row label="PM10 (zdaj)"      value={W.pm10!=null?Math.max(0,W.pm10):'—'} sub={W.pm10!=null?'µg/m³':''} T={T}/>
-              <Row label="PM2.5 (zdaj)"     value={W.pm25!=null?Math.max(0,W.pm25):'—'} sub={W.pm25!=null?'µg/m³':''} T={T}/>
+              <Row label="PM2.5 (zdaj)"     value={W.pm2p5!=null?Math.max(0,W.pm2p5):'—'} sub={W.pm2p5!=null?'µg/m³':''} T={T}/>
               <div style={{marginTop:10,padding:'8px 10px',background:'rgba(5,150,105,0.1)',borderRadius:10,border:'1px solid rgba(5,150,105,0.2)',fontSize:12,color:'#065f46',textAlign:'center'}}>
                 Kakovost zraka: Dobra
               </div>
@@ -729,13 +734,26 @@ export default function App() {
         {tab==='radar'&&(
           <div className="fade-up" style={{padding:'20px 15px 0'}}>
             <Card T={T} style={{marginBottom:11,padding:14}}>
-              <CardTitle icon={<Ico.Bolt/>} right="ARSO · 5 min" T={T}>Radar padavin</CardTitle>
-              <div style={{borderRadius:12,overflow:'hidden',background:'rgba(0,0,0,0.08)'}}>
-                <LiveImage src="https://vremetolmin.si/radar.png" alt="Radar padavin"
-                  imgStyle={{borderRadius:12,maxHeight:260,objectFit:'contain'}}
-                  fallbackText="Radar ni dosegljiv" T={T}/>
+              <CardTitle icon={<Ico.Cam/>} T={T}>Kamere</CardTitle>
+              <div style={{borderRadius:12,overflow:'hidden',marginBottom:10}}>
+                <LiveImage src="https://www.vremetolmin.si/webcam5.jpg" alt="Webcam Zatolmin"
+                  imgStyle={{borderRadius:12,maxHeight:200,objectFit:'cover',objectPosition:'50% 55%'}}
+                  fallbackText="Kamera ni dosegljiva" T={T}/>
               </div>
-              <div style={{marginTop:6,fontSize:10,color:T.textDim,textAlign:'right'}}>Samodejno osvežuje vsako minuto</div>
+              <div style={{fontSize:11,color:T.textDim,textAlign:'right',marginBottom:10}}>Osvežuje se vsakih 5 minut</div>
+             <div style={{borderRadius:12,overflow:'hidden',marginBottom:10}}>
+                <LiveImage src="https://www.vremetolmin.si/allsky/image.jpg" alt="Allsky Tolmin"
+                  imgStyle={{borderRadius:12,maxHeight:300,objectFit:'cover',objectPosition:'50% 55%'}}
+                  fallbackText="Kamera ni dosegljiva" T={T}/>
+              </div>
+              <div style={{fontSize:11,color:T.textDim,textAlign:'center',marginBottom:10}}>Osvežuje se vsako minuto</div>
+             <div style={{borderRadius:12,overflow:'hidden',marginBottom:10}}>
+                <LiveImage src="https://www.vremetolmin.si/aurora/image.jpg" alt="Aurora Tolmin"
+                  imgStyle={{borderRadius:12,maxHeight:200,objectFit:'cover',objectPosition:'50% 55%'}}
+                  fallbackText="Kamera ni dosegljiva" T={T}/>
+              </div>
+              <div style={{fontSize:11,color:T.textDim,textAlign:'center',marginBottom:10}}>Osvežuje se vsako minuto</div>
+              
             </Card>
             <Card T={T} style={{marginBottom:11,padding:14}}>
               <CardTitle icon={<Ico.Bolt/>} right="Boltek detektor" T={T}>Strele — StormVue</CardTitle>
@@ -750,21 +768,7 @@ export default function App() {
                 <Row label="Danes skupaj"  value={W.lightningDay!=null?W.lightningDay:0} T={T}/>
               </div>
             </Card>
-            <Card T={T} style={{marginBottom:11,padding:14}}>
-              <CardTitle icon={<Ico.Cam/>} T={T}>Kamera Zatolmin JV</CardTitle>
-              <div style={{borderRadius:12,overflow:'hidden',marginBottom:10}}>
-                <LiveImage src="https://www.vremetolmin.si/webcam5.jpg" alt="Webcam Zatolmin"
-                  imgStyle={{borderRadius:12,maxHeight:200,objectFit:'cover',objectPosition:'50% 55%'}}
-                  fallbackText="Kamera ni dosegljiva" T={T}/>
-              </div>
-              <div style={{fontSize:11,color:T.textDim,textAlign:'center',marginBottom:10}}>Živo · Osvežuje se vsako minuto</div>
-              {[['Severni pogled','https://vremetolmin.si/aurora/'],['Vsenebna kamera','https://vremetolmin.si/allsky/'],['Zadnji satelit','https://vremetolmin.si/sateliti/sat_zadnja.jpg']].map(([l,u])=>(
-                <div key={l} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid rgba(0,0,0,0.07)'}}>
-                  <span style={{fontSize:12,color:T.textMuted}}>{l}</span>
-                  <a href={u} target="_blank" rel="noopener noreferrer" style={{fontSize:12,color:T.accent}}>Odpri ↗</a>
-                </div>
-              ))}
-            </Card>
+            
           </div>
         )}
 

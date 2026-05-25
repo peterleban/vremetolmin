@@ -11,7 +11,7 @@ export default defineConfig({
       manifest: {
         name: 'Vreme Tolmin',
         short_name: 'Vreme Tolmin',
-        description: 'Vremenska postaja Tolmin – Dolina Tolminke',
+        description: 'Vremenska postaja Tolmin – Tolminka',
         theme_color: '#0a1628',
         background_color: '#0a1628',
         display: 'standalone',
@@ -30,7 +30,7 @@ export default defineConfig({
           {
             urlPattern: /^https:\/\/www\.vremetolmin\.si\/.*/i,
             handler: 'NetworkFirst',
-            options: { cacheName: 'vremetolmin-cache', expiration: { maxAgeSeconds: 300 } }
+            options: { cacheName: 'vremetolmin-cache', expiration: { maxAgeSeconds: 60 } }
           }
         ]
       }
