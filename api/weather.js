@@ -53,7 +53,7 @@
  *  [82] moon age string   "Moon age: 20 days,17 hours,33 minutes,65%"
  *  [86] pressure mmHg     "762"
  *  [87] forecast (SL)     "Soncno/Brez padavin"
- *  [88] pressure change   "+2.8"
+ *  [88] temp change   "+2.8"
  */
 
 const BASE = 'https://www.vremetolmin.si';
@@ -138,6 +138,7 @@ function parseTagMain(text) {
   const solarMonth = parseWD((f[69] ?? '').replace(/kwh/i, ''));
   const solarYear  = parseWD((f[70] ?? '').replace(/kwh/i, ''));
 
+
   return {
     date:             cleanWD(f[0]),
     time:             cleanWD(f[1]),
@@ -188,7 +189,7 @@ function parseTagMain(text) {
     solarKWhYear:     solarYear,
     forecastCondition: cleanWD(f[87]),
     pressureMmHg:     parseI(f[86]),
-    pressureChange:   cleanWD(f[88]),
+    tempChange:   cleanWD(f[88]),
     lastUpdate:       `${cleanWD(f[0])} ${cleanWD(f[1])}`,
     source:           'tag_main.html',
   };

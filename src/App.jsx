@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 
 async function fetchWeather() {
-  const res = await fetch('/api/weather')
+  const res = await fetch('/api/weather', {
+  cache: 'no-store'})
   if (!res.ok) throw new Error('API error')
   return res.json()
 }
@@ -50,66 +51,153 @@ const THEMES = {
   sunny: {
     bg: 'linear-gradient(175deg,#1a6fa8 0%,#3b9fd4 16%,#6ec6f0 32%,#b8e4f9 48%,#fde99a 64%,#f9c74f 78%,#e8a020 90%,#c47a0a 100%)',
     orb: 'radial-gradient(ellipse 70% 40% at 50% 8%,rgba(255,228,80,.6) 0%,rgba(255,180,30,.28) 45%,transparent 72%)',
-    sun:true, card:'rgba(255,255,255,0.55)', cardBorder:'rgba(255,255,255,0.75)',
-    tabBar:'rgba(255,255,255,0.78)', tabBarBorder:'rgba(200,180,100,0.3)',
-    accent:'#b45309', textPrimary:'#1a1a2e', textMuted:'#4a4060', textDim:'#6a6090',
-    heroTemp:'#7c2d12', heroLow:'#1e3a8a', heroHigh:'#991b1b', heroDew:'#44337a', label:'JASNO ☀️',
+    sun:true,
+    card:'rgba(255,255,255,0.72)',
+    cardBorder:'rgba(255,255,255,0.88)',
+    tabBar:'rgba(255,255,255,0.88)',
+    tabBarBorder:'rgba(180,140,60,0.28)',
+    accent:'#92400e',
+    textPrimary:'#111827',
+    textMuted:'#374151',
+    textDim:'#4b5563',
+    heroTemp:'#7c2d12',
+    heroLow:'#1e3a8a',
+    heroHigh:'#991b1b',
+    heroDew:'#312e81',
+    label:'JASNO ☀️',
   },
+
   partly_cloudy: {
     bg: 'linear-gradient(175deg,#1b5e8a 0%,#2e86c1 18%,#5aaddc 36%,#a8d8ea 54%,#d4eaf7 68%,#b8d8ee 84%,#7aafc8 100%)',
     orb: 'radial-gradient(ellipse 65% 38% at 50% 6%,rgba(200,230,255,.5) 0%,rgba(150,200,240,.22) 50%,transparent 72%)',
-    card:'rgba(255,255,255,0.52)', cardBorder:'rgba(255,255,255,0.72)',
-    tabBar:'rgba(255,255,255,0.72)', tabBarBorder:'rgba(140,190,220,0.3)',
-    accent:'#1d6fa0', textPrimary:'#0f2540', textMuted:'#2d5070', textDim:'#4a6a80',
-    heroTemp:'#0c4a6e', heroLow:'#1e3a8a', heroHigh:'#7f1d1d', heroDew:'#1e3a5f', label:'DELNO OBLAČNO 🌤️',
+    card:'rgba(255,255,255,0.68)',
+    cardBorder:'rgba(255,255,255,0.84)',
+    tabBar:'rgba(255,255,255,0.84)',
+    tabBarBorder:'rgba(120,170,210,0.28)',
+    accent:'#0f5f8f',
+    textPrimary:'#0f172a',
+    textMuted:'#334155',
+    textDim:'#475569',
+    heroTemp:'#0c4a6e',
+    heroLow:'#1e3a8a',
+    heroHigh:'#7f1d1d',
+    heroDew:'#1e3a5f',
+    label:'DELNO OBLAČNO 🌤️',
   },
+
   cloudy: {
     bg: 'linear-gradient(175deg,#2d3a4a 0%,#3d5168 18%,#546880 36%,#6b7f92 54%,#8595a4 70%,#9aaab6 85%,#7a8e9c 100%)',
     orb: 'radial-gradient(ellipse 70% 35% at 50% 5%,rgba(180,200,220,.35) 0%,rgba(140,165,185,.15) 50%,transparent 72%)',
-    card:'rgba(255,255,255,0.42)', cardBorder:'rgba(255,255,255,0.58)',
-    tabBar:'rgba(255,255,255,0.58)', tabBarBorder:'rgba(160,180,200,0.3)',
-    accent:'#334e68', textPrimary:'#e9f1f7', textMuted:'#b9cbe0', textDim:'#7f96aa',
-    heroTemp:'#ffffff', heroLow:'#bfdbfe', heroHigh:'#fecaca', heroDew:'#e0e8f0', label:'OBLAČNO ☁️',
+    card:'rgba(255,255,255,0.72)',
+    cardBorder:'rgba(255,255,255,0.86)',
+    tabBar:'rgba(255,255,255,0.82)',
+    tabBarBorder:'rgba(160,180,200,0.24)',
+    accent:'#334e68',
+    textPrimary:'#111827',
+    textMuted:'#374151',
+    textDim:'#4b5563',
+    heroTemp:'#111827',
+    heroLow:'#1d4ed8',
+    heroHigh:'#b91c1c',
+    heroDew:'#334155',
+    label:'OBLAČNO ☁️',
   },
+
   rain: {
     bg: 'linear-gradient(175deg,#1a2a3a 0%,#253650 16%,#2e4a6a 32%,#3a5c7a 50%,#4a6e8a 66%,#5a7e96 82%,#4a6878 100%)',
     orb: 'radial-gradient(ellipse 65% 32% at 50% 4%,rgba(120,170,220,.32) 0%,rgba(80,130,180,.14) 50%,transparent 72%)',
-    card:'rgba(255,255,255,0.40)', cardBorder:'rgba(255,255,255,0.55)',
-    tabBar:'rgba(255,255,255,0.55)', tabBarBorder:'rgba(100,150,190,0.3)',
-    accent:'#1a4a7a', textPrimary:'#e8f4ff', textMuted:'#b8d4f0', textDim:'#7aa4c0',
-    heroTemp:'#ffffff', heroLow:'#bfdbfe', heroHigh:'#fecaca', heroDew:'#c8e0f0', label:'DEŽ 🌧️', rain:true,
+    card:'rgba(255,255,255,0.78)',
+    cardBorder:'rgba(255,255,255,0.90)',
+    tabBar:'rgba(255,255,255,0.86)',
+    tabBarBorder:'rgba(100,150,190,0.24)',
+    accent:'#1d4ed8',
+    textPrimary:'#0f172a',
+    textMuted:'#334155',
+    textDim:'#475569',
+    heroTemp:'#0f172a',
+    heroLow:'#1d4ed8',
+    heroHigh:'#b91c1c',
+    heroDew:'#334155',
+    label:'DEŽ 🌧️',
+    rain:true,
   },
+
   heavy_rain: {
     bg: 'linear-gradient(175deg,#0f1a28 0%,#182438 16%,#203050 32%,#283a5c 50%,#304468 66%,#384e72 82%,#283e58 100%)',
     orb: 'radial-gradient(ellipse 60% 28% at 50% 3%,rgba(80,120,180,.25) 0%,rgba(50,90,140,.1) 50%,transparent 72%)',
-    card:'rgba(255,255,255,0.36)', cardBorder:'rgba(255,255,255,0.50)',
-    tabBar:'rgba(255,255,255,0.50)', tabBarBorder:'rgba(80,120,180,0.3)',
-    accent:'#3b82f6', textPrimary:'#e0f0ff', textMuted:'#a0c0e0', textDim:'#608090',
-    heroTemp:'#ffffff', heroLow:'#bfdbfe', heroHigh:'#fecaca', heroDew:'#b0d0f0', label:'MOČAN DEŽ 🌧️', rain:true, heavy:true,
+    card:'rgba(255,255,255,0.82)',
+    cardBorder:'rgba(255,255,255,0.92)',
+    tabBar:'rgba(255,255,255,0.88)',
+    tabBarBorder:'rgba(80,120,180,0.22)',
+    accent:'#2563eb',
+    textPrimary:'#0f172a',
+    textMuted:'#334155',
+    textDim:'#475569',
+    heroTemp:'#0f172a',
+    heroLow:'#2563eb',
+    heroHigh:'#b91c1c',
+    heroDew:'#334155',
+    label:'MOČAN DEŽ 🌧️',
+    rain:true,
+    heavy:true,
   },
+
   storm: {
     bg: 'linear-gradient(175deg,#080e18 0%,#0e1828 14%,#152035 28%,#1a2848 44%,#222e52 60%,#1e2a48 76%,#141e38 100%)',
     orb: 'radial-gradient(ellipse 55% 25% at 50% 3%,rgba(100,80,190,.3) 0%,rgba(60,50,140,.12) 50%,transparent 72%)',
-    card:'rgba(255,255,255,0.28)', cardBorder:'rgba(255,255,255,0.40)',
-    tabBar:'rgba(255,255,255,0.38)', tabBarBorder:'rgba(100,80,200,0.25)',
-    accent:'#818cf8', textPrimary:'#e8e8f8', textMuted:'#b0b0d0', textDim:'#7878a8',
-    heroTemp:'#ffffff', heroLow:'#c7d2fe', heroHigh:'#fca5a5', heroDew:'#c8c8e8', label:'NEVIHTA ⛈️', rain:true, heavy:true, storm:true,
+    card:'rgba(255,255,255,0.84)',
+    cardBorder:'rgba(255,255,255,0.94)',
+    tabBar:'rgba(255,255,255,0.90)',
+    tabBarBorder:'rgba(100,80,200,0.22)',
+    accent:'#6366f1',
+    textPrimary:'#111827',
+    textMuted:'#374151',
+    textDim:'#4b5563',
+    heroTemp:'#111827',
+    heroLow:'#4338ca',
+    heroHigh:'#b91c1c',
+    heroDew:'#334155',
+    label:'NEVIHTA ⛈️',
+    rain:true,
+    heavy:true,
+    storm:true,
   },
+
   snow: {
     bg: 'linear-gradient(175deg,#c8dff0 0%,#daeaf6 18%,#eef5fb 38%,#f4f8fc 55%,#e8f0f8 70%,#d4e4f4 85%,#c0d4e8 100%)',
     orb: 'radial-gradient(ellipse 70% 40% at 50% 6%,rgba(255,255,255,.65) 0%,rgba(210,235,255,.32) 45%,transparent 72%)',
-    card:'rgba(255,255,255,0.60)', cardBorder:'rgba(255,255,255,0.82)',
-    tabBar:'rgba(255,255,255,0.78)', tabBarBorder:'rgba(180,210,240,0.4)',
-    accent:'#1e5080', textPrimary:'#0f2840', textMuted:'#2a4860', textDim:'#4a6880',
-    heroTemp:'#1e3a8a', heroLow:'#1d4ed8', heroHigh:'#1e3a8a', heroDew:'#1e4060', label:'SNEG ❄️', snow:true,
+    card:'rgba(255,255,255,0.74)',
+    cardBorder:'rgba(255,255,255,0.90)',
+    tabBar:'rgba(255,255,255,0.88)',
+    tabBarBorder:'rgba(180,210,240,0.30)',
+    accent:'#1e5080',
+    textPrimary:'#0f172a',
+    textMuted:'#334155',
+    textDim:'#475569',
+    heroTemp:'#1e3a8a',
+    heroLow:'#2563eb',
+    heroHigh:'#1e3a8a',
+    heroDew:'#334155',
+    label:'SNEG ❄️',
+    snow:true,
   },
+
   fog: {
     bg: 'linear-gradient(175deg,#6b7a88 0%,#7d8d9c 18%,#919fac 36%,#a5b0ba 54%,#b5bec6 70%,#c2cad0 85%,#aab4bc 100%)',
     orb: 'radial-gradient(ellipse 80% 40% at 50% 5%,rgba(210,220,230,.4) 0%,rgba(180,195,210,.18) 50%,transparent 72%)',
-    card:'rgba(255,255,255,0.50)', cardBorder:'rgba(255,255,255,0.68)',
-    tabBar:'rgba(255,255,255,0.68)', tabBarBorder:'rgba(150,170,190,0.3)',
-    accent:'#2d4a5a', textPrimary:'#243746', textMuted:'#4f6474', textDim:'#708090',
-    heroTemp:'#ffffff', heroLow:'#bfdbfe', heroHigh:'#fca5a5', heroDew:'#d8e8f0', label:'MEGLA 🌫️',
+    card:'rgba(255,255,255,0.74)',
+    cardBorder:'rgba(255,255,255,0.88)',
+    tabBar:'rgba(255,255,255,0.84)',
+    tabBarBorder:'rgba(150,170,190,0.24)',
+    accent:'#2d4a5a',
+    textPrimary:'#111827',
+    textMuted:'#374151',
+    textDim:'#4b5563',
+    heroTemp:'#111827',
+    heroLow:'#2563eb',
+    heroHigh:'#b91c1c',
+    heroDew:'#334155',
+    label:'MEGLA 🌫️',
   },
 }
 
@@ -311,12 +399,26 @@ export default function App() {
     } catch { setError('Napaka pri nalaganju podatkov.') }
     finally { setLoading(false); setRefreshing(false) }
   }
-  useEffect(()=>{load()},[])
+ // useEffect(()=>{load()},[])
+  useEffect(() => {
+
+    // initial load
+    load()
+    // auto refresh every 60s
+    const interval = setInterval(() => {
+      load(true)
+    }, 60000)
+
+    // cleanup
+    return () => clearInterval(interval)
+
+  }, [])
 
   const T = THEMES[condition]||THEMES.sunny
 
   // Pull values — all from tag_main.html now
   const temp      = W.temp       ?? '—'
+  const tempChange= W.tempChange ?? '—'  
   const tempMin   = W.tempMin    ?? '—'
   const tempMax   = W.tempMax    ?? '—'
   const humidity  = W.humidity   != null ? Math.max(0,W.humidity) : null
@@ -329,6 +431,7 @@ export default function App() {
   const uv        = W.uv         != null ? Math.max(0,W.uv) : null
   const solar     = W.solar      != null ? Math.max(0,W.solar) : null
   const dewPoint  = W.dewPoint   ?? '—'
+  const windMaxToday = W.windMaxToday ?? '—'
   const nearby    = W.nearbyStations ?? []
   const arso      = W.arsoStations   ?? []
   const forecast  = W.forecast       ?? {}
@@ -367,7 +470,7 @@ export default function App() {
         <div onClick={()=>setShowDebug(v=>!v)} style={{cursor:'pointer'}}>
           <div style={{display:'flex',alignItems:'center',gap:7}}>
             <div style={{width:7,height:7,borderRadius:'50%',background:'#16a34a',animation:'blink 2.4s infinite',flexShrink:0}}/>
-            <span style={{fontSize:11,color:T.textMuted,letterSpacing:'0.08em',fontFamily:"'DM Mono',monospace"}}>TOLMIN · ŽIVO</span>
+            <span style={{fontSize:11,color:T.textMuted,letterSpacing:'0.08em',fontFamily:"'DM Mono',monospace"}}>VREME TOLMIN · TOLMINKA</span>
             <span style={{fontSize:10,color:T.accent,fontWeight:700,marginLeft:4}}>{T.label}</span>
           </div>
           <div style={{fontSize:11,color:T.textDim,marginTop:2,textTransform:'capitalize'}}>{dateStr}</div>
@@ -406,7 +509,9 @@ export default function App() {
                 {loading
                   ?<div style={{width:130,height:76,borderRadius:8,background:T.card,animation:'pulse 1.5s infinite'}}/>
                   :<><span style={{fontFamily:"'DM Mono',monospace",fontSize:84,lineHeight:1,fontWeight:400,color:tempCol,letterSpacing:'-0.03em',textShadow:'0 2px 12px rgba(0,0,0,0.25)'}}>{temp}</span>
-                    <span style={{fontSize:30,color:T.textDim,marginBottom:12}}>°C</span></>
+                    <span style={{fontSize:30,color:T.textDim,marginBottom:12}}>°C</span>
+                    <span style={{fontSize:12,color:T.textDim,marginBottom:12}}>{tempChange}°C/h</span>
+                    </>
                 }
               </div>
               <div style={{display:'flex',gap:14,marginTop:6,flexWrap:'wrap'}}>
@@ -419,23 +524,51 @@ export default function App() {
             <Card T={T} style={{marginBottom:11}}>
               <div style={{display:'flex',justifyContent:'space-around',flexWrap:'wrap',gap:2}}>
                 <Arc value={humidity}  min={0}   max={100}  color="#0284c7" label="Vlaga"   unit="%" T={T}/>
-                <Arc value={pressure}  min={980} max={1040} color="#7c3aed" label="Tlak"    unit="hPa" T={T}/>
-                <Arc value={uv}        min={0}   max={11}   color="#d97706" label="UV"      unit="idx" T={T}/>
-                <Arc value={W.solar}   min={0}   max={1000} color="#f59e0b" label="Solar"   unit="W/m²" T={T}/>
+                <Arc value={dewPoint}  min={-25} max={25}   color="#d97706" label="Rosišče" unit="°C" T={T}/>
+                <Arc value={pressure}  min={980} max={1040} color="#7c3aed" label="Tlak"    unit="mb" T={T}/>
               </div>
             </Card>
 
             <div style={{marginBottom:11}}>
             <Card T={T} style={{marginBottom:11}}>
               <CardTitle icon={<Ico.Wind/>} T={T}>Veter</CardTitle>
-              <div style={{display:'flex',alignItems:'center',gap:20,justifyContent:'center',padding:'8px 0'}}>
+
+              <div
+                style={{
+                  display:'flex',
+                  alignItems:'center',
+                  gap:20,
+                  justifyContent:'center',
+                  padding:'8px 0'
+                }}
+              >
                 <WindCompass dir={windDir} T={T}/>
-                <div>
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:'#0284c7',marginTop:6}}>{windDir}</div>
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:T.textPrimary}}>{d(windSpeed)}</div>
-                  <div style={{fontSize:11,color:T.textDim}}>km/h povp.</div>
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:36,color:T.accent,marginTop:6}}>{windGust}</div>
-                  <div style={{fontSize:11,color:T.textDim}}>km/h sunki</div>
+
+                <div style={{display:'flex',flexDirection:'column'}}>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:'#0284c7',marginTop:6}}>
+                    {windDir}
+                  </div>
+
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:T.textPrimary}}>
+                    {d(windSpeed)}
+                  </div>
+
+                  <div style={{fontSize:11,color:T.textDim}}>
+                    km/h povp.
+                  </div>
+
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:36,color:T.accent,marginTop:6}}>
+                    {windGust}
+                  </div>
+
+                  <div style={{fontSize:11,color:T.textDim}}>
+                    km/h sunki
+                  </div>
+
+                  {/* now at bottom */}
+                  <div style={{fontSize:11,color:T.textDim,marginTop:10}}>
+                    Najmočnejši sunek danes: {windMaxToday} km/h
+                  </div>
                 </div>
               </div>
             </Card>
@@ -457,7 +590,6 @@ export default function App() {
 
             <Card T={T} style={{marginBottom:11}}>
               <CardTitle icon={<Ico.Therm/>}  T={T}>Temperatura podrobno</CardTitle>
-              <Row label="Rosišče"         value={`${d(dewPoint)}°C`} T={T}/>
               <Row label="Maks. danes"        value={`${d(W.tempMax)}°C`} sub={W.tempMaxTime?`ob ${W.tempMaxTime}`:''} T={T}/>
               <Row label="Min. danes"         value={`${d(W.tempMin)}°C`} sub={W.tempMinTime?`ob ${W.tempMinTime}`:''} T={T}/>
             </Card>
@@ -510,7 +642,7 @@ export default function App() {
               <Row label="Smer"                    value={windDir} T={T}/>
               <Row label="Tlak zraka"              value={pressure!=null?`${pressure}`:'—'} sub={pressure!=null?'hPa':''} T={T}/>
               <Row label="Trend tlaka"             value={d(W.pressureTrend)} T={T}/>
-              <Row label="Sprememba tlaka"         value={W.pressureChange!=null?`${W.pressureChange}`:'—'} sub={W.pressureChange!=null?'hPa':''} T={T}/>
+              <Row label="Sprememba temperature"         value={W.tempChange!=null?`${W.tempChange}`:'—'} sub={W.tempChange!=null?'°C':''} T={T}/>
             </Card>
           </div>
         )}
