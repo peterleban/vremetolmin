@@ -313,7 +313,7 @@ const TabIcons = {
   veter:    () => <svg viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>,
   padavine: () => <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z" fill="#3b82f6" stroke="#3b82f6"/><path d="M8.2 8.5 Q9 7.2 9.5 8" stroke="rgba(255,255,255,0.7)" strokeWidth="1" fill="none" strokeLinecap="round"/></svg>,
   napoved:  () => <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="4" fill="#fbbf24" stroke="#fbbf24"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="#fbbf24"/></svg>,
-  radar:    () => <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" fill="#fbbf24" stroke="#fbbf24"/></svg>,
+  kamere:    () => <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z" fill="#fbbf24" stroke="#fbbf24"/></svg>,
   postaje:  () => <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" fill="#ef4444" stroke="#ef4444"/><circle cx="12" cy="10" r="3" fill="white" stroke="white"/></svg>,
   donacija: () => <svg viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="#f43f5e" stroke="#f43f5e"/></svg>,
 }
@@ -332,11 +332,11 @@ const Ico = {
 }
 
 const TABS = [
-  {id:'zdaj',     label:'Trenutno',     Icon:TabIcons.zdaj},
-  {id:'veter',    label:'Veter',    Icon:TabIcons.veter},
-  //{id:'padavine', label:'Test',     Icon:Ico.Leaf},
+  {id:'zdaj',     label:'Trenutno', Icon:TabIcons.zdaj},
+  {id:'radar',    label:'Kamere',   Icon:Ico.Cam},
   {id:'napoved',  label:'Napoved',  Icon:TabIcons.napoved},
-  {id:'radar',    label:'Kamere',    Icon:Ico.Cam},
+  {id:'padavine', label:'Nevihte',  Icon:Ico.Bolt},  
+  {id:'okolje',   label:'Okolje',   Icon:Ico.Leaf},
   {id:'postaje',  label:'Postaje',  Icon:TabIcons.postaje},
   {id:'donacija', label:'Donacija', Icon:TabIcons.donacija},
 ]
@@ -571,7 +571,7 @@ export default function App() {
             <Card T={T} style={{marginBottom:11}}>
               <div style={{display:'flex',justifyContent:'space-around',flexWrap:'wrap',gap:2}}>
                 <Arc value={humidity}  min={0}   max={100}  color="#0284c7" label="Vlaga"   unit="%" T={T}/>
-                <Arc value={dewPoint}  min={-25} max={25}   color="#d97706" label="Rosišče" unit="°C" T={T}/>
+                <Arc value={dewPoint}  min={-25} max={30}   color="#d97706" label="Rosišče" unit="°C" T={T}/>
                 <Arc value={pressure}  min={980} max={1040} color="#7c3aed" label="Tlak"    unit="mb" T={T}/>
               </div>
             </Card>
@@ -653,17 +653,6 @@ export default function App() {
               <Row label="Lunin zahod"     value={d(W.moonset)} T={T}/>
               <Row label="Lunina faza"     value={d(W.moonPhase)} T={T}/>
             </Card>
-
-            <Card T={T} style={{marginBottom:11}}>
-              <CardTitle icon={<Ico.Leaf/>} T={T}>Kakovost zraka</CardTitle>
-              <Row label="PM10 (zdaj)"      value={W.pm10!=null?Math.max(0,W.pm10):'—'} sub={W.pm10!=null?'µg/m³':''} T={T}/>
-              <Row label="PM2.5 (zdaj)"     value={W.pm2p5!=null?Math.max(0,W.pm2p5):'—'} sub={W.pm2p5!=null?'µg/m³':''} T={T}/>
-              <div style={{marginTop:10,padding:'8px 10px',background:'rgba(5,150,105,0.1)',borderRadius:10,border:'1px solid rgba(5,150,105,0.2)',fontSize:12,color:'#065f46',textAlign:'center'}}>
-                Kakovost zraka: Dobra
-              </div>
-            </Card>
-
-
           </div>
         )}
 
@@ -698,33 +687,68 @@ export default function App() {
           </div>
         )}
 
-        {/* ━━ PADAVINE ━━ */}
-        {tab==='padavine'&&(
+        {/* ━━ OKOLJE ━━ */}
+        {tab==='okolje' && (
           <div className="fade-up" style={{padding:'20px 15px 0'}}>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:11}}>
-              {[['Danes',`${rain} mm`],['Včeraj',`${nn(W.rainYest)} mm`],['Ta mesec',W.rainMonth!=null?`${W.rainMonth} mm`:'—'],['Letos',W.rainYear!=null?`${W.rainYear} mm`:'—']].map(([l,v])=>(
-                <Card key={l} T={T}>
-                  <div style={{fontSize:10,color:T.textDim,textTransform:'uppercase',letterSpacing:'0.07em',marginBottom:6}}>{l}</div>
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:22,color:'#1d4ed8'}}>{v}</div>
-                </Card>
-              ))}
-            </div>
+
             <Card T={T} style={{marginBottom:11}}>
-              <CardTitle icon={<Ico.Drop/>} right="Davis koritce" T={T}>Intenzivnost padavin</CardTitle>
-              <Row label="Trenutna intenzivnost"   value={rainRate} sub="mm/h" T={T}/>
-              <Row label="Skupaj danes"            value={rain} sub="mm" T={T}/>
-              <Row label="Padavine včeraj"         value={nn(W.rainYest)} sub="mm" T={T}/>
-              <Row label="Ta mesec"                value={W.rainMonth!=null?W.rainMonth:0} sub="mm" T={T}/>
-              <Row label="Letos skupaj"            value={W.rainYear!=null?W.rainYear:0} sub="mm" T={T}/>
-              <Row label="Zaporedni deževni dnevi" value={W.rainDays!=null?W.rainDays:0} T={T}/>
-              <Row label="Zaporedni suhi dnevi"    value={W.dryDays!=null?W.dryDays:0} T={T}/>
+              <CardTitle icon={<Ico.Leaf/>} T={T}>Zrak</CardTitle>
+              <Row label="PM10 (zdaj)"      value={W.pm10!=null?Math.max(0,W.pm10):'—'} sub={W.pm10!=null?'µg/m³':''} T={T}/>
+              <Row label="PM2.5 (zdaj)"     value={W.pm2p5!=null?Math.max(0,W.pm2p5):'—'} sub={W.pm2p5!=null?'µg/m³':''} T={T}/>
+              <div style={{marginTop:10,padding:'8px 10px',background:'rgba(5,150,105,0.1)',borderRadius:10,border:'1px solid rgba(5,150,105,0.2)',fontSize:12,color:'#065f46',textAlign:'center'}}>
+                Kakovost zraka
+              </div>
             </Card>
-            <Card T={T}>
-              <CardTitle icon={<Ico.Wave/>} right="ARSO" T={T}>Reka Tolminka</CardTitle>
-              <Row label="Višina vode"     value={W.riverLevel!=null?`${W.riverLevel}`:'—'} sub={W.riverLevel!=null?'cm':''} T={T}/>
-              <Row label="Temperatura"    value={W.riverTemp!=null?`${W.riverTemp}`:'—'}   sub={W.riverTemp!=null?'°C':''} T={T}/>
-              <Row label="Zadnje merjenje" value={d(W.riverTime)} T={T}/>
+
+            <Card T={T} style={{marginBottom:11}}>
+              <CardTitle icon={<Ico.Leaf/>} T={T}>Zemlja</CardTitle>
+              <Row label="Temperatura na površini"       value={W.soil0cm!=null?`${W.soil0cm} °C`:'—'} sub={W.soil0cm!=null?`ob ${W.soil0cm}`:''} T={T}/>
+              <Row label="Temperatura na globini 5 cm"   value={W.soil5cm!=null?`${W.soil5cm} °C`:'—'} sub={W.soil5cm!=null?`ob ${W.soil5cm}`:''} T={T}/>
+              <Row label="Temperatura na globini 30 cm"  value={W.soil30cm!=null?`${W.soil30cm} °C`:'—'} sub={W.soil30cm!=null?`ob ${W.soil30cm}`:''} T={T}/>
+              <Row label="Vlažnost zgornje prsti"        value={W.soilmoist!=null?`${W.soilmoist} %`:'—'} sub={W.soilmoist!=null?'%':''} T={T}/>
+              <Row label="Izhlapevanje danes"            value={W.etdanes!=null?`${W.etdanes} mm`:'—'} T={T}/>
+              <Row label="Izhlapevanje tekoči mesec"     value={W.etmesec!=null?`${W.etmesec} mm`:'—'} T={T}/>
+              <Row label="Padavine tekoči mesec"         value={W.rainMonth!=null?`${W.rainMonth} mm`:'—'} T={T}/>
             </Card>
+          </div>
+        )}
+
+
+        {/* ━━ PADAVINE ━━ */}
+        {tab==='padavine' && (
+          <div className="fade-up" style={{padding:'20px 15px 0'}}>
+
+            <Card T={T} style={{marginBottom:11}}>
+              <CardTitle icon={<Ico.Bolt/>} right="detektor AS3935" T={T}>razelektritve (20 km)</CardTitle>
+              <Row label="Danes skupno"           value={W.streledanes != null ? W.streledanes : '—'} T={T}/>
+            </Card>
+
+            <Card T={T} style={{marginBottom:11}}>
+              <CardTitle icon={<Ico.Bolt/>} right="detektor Boltek" T={T}>razelektritve (300 km)</CardTitle>
+              <Row label="Zadnjo minuto"           value={W.boltek1min != null ? W.boltek1min : '—'} T={T}/>
+              <Row label="Zadnjo uro"              value={W.boltek1h != null ? W.boltek1h : '—'} T={T}/>
+              <Row label="Danes skupno"            value={W.boltektoday != null ? W.boltektoday : '—'} T={T}/>
+              <Row label="Zadnja"                  value={W.bolteklast != null ? W.bolteklast : '—'} T={T}/>
+              <Row label="Zadnja (smer, razdalja)" value={`${W.bolteklastdir || '—'} ${W.bolteklastbear || ''}`.trim()} T={T}/>
+            </Card>
+
+            <div className="fade-up" style={{padding:'20px 15px 0'}}>
+            <Card T={T} style={{marginBottom:11}}>
+              <CardTitle icon={<Ico.Bolt/>} T={T}>Približne lokacije nevihtnih celic</CardTitle>
+              <div style={{borderRadius:12,overflow:'hidden',marginBottom:10}}>
+                <LiveImage src="https://www.vremetolmin.si/nexstorm.jpg" alt="Nexstorm radar Tolmin"
+                  imgStyle={{borderRadius:12,maxHeight:300,objectFit:'cover',objectPosition:'50% 55%'}}
+                  fallbackText="Kamera ni dosegljiva" T={T}/>
+              </div>
+              <div style={{fontSize:11,color:T.textDim,textAlign:'right',marginBottom:10}}>Osvežuje se vsakih 5 minut</div>
+              <div style={{borderRadius:12,overflow:'hidden',background:'rgba(0,0,0,0.06)'}}>
+                <iframe src="https://vremetolmin.si/stormvue.html" title="StormVue strele"
+                  style={{width:'100%', height:300,border:'none',display:'block',borderRadius:12}}
+                  sandbox="allow-scripts allow-same-origin"/>
+              </div>
+              <div style={{fontSize:11,color:T.textDim,textAlign:'right',marginBottom:10}}>V živo</div>
+            </Card>
+            </div>
           </div>
         )}
 
@@ -811,7 +835,7 @@ export default function App() {
           </div>
         )}
         {/* ━━ RADAR ━━ */}
-        {tab==='radar'&&(
+        {tab==='kamere'&&(
           <div className="fade-up" style={{padding:'20px 15px 0'}}>
             <Card T={T} style={{marginBottom:11,padding:14}}>
               <CardTitle icon={<Ico.Cam/>} T={T}>Kamere</CardTitle>
@@ -838,11 +862,7 @@ export default function App() {
 
 {/*}            <Card T={T} style={{marginBottom:11,padding:14}}>
               <CardTitle icon={<Ico.Bolt/>} right="Boltek detektor" T={T}>Strele — StormVue</CardTitle>
-              <div style={{borderRadius:12,overflow:'hidden',background:'rgba(0,0,0,0.06)'}}>
-                <iframe src="https://vremetolmin.si/stormvue.html" title="StormVue strele"
-                  style={{width:'100%',height:300,border:'none',display:'block',borderRadius:12}}
-                  sandbox="allow-scripts allow-same-origin"/>
-              </div>
+
               <div style={{marginTop:10}}>
                 <Row label="Zadnja minuta" value={W.lightning1min!=null?W.lightning1min:0} T={T}/>
                 <Row label="Zadnja ura"    value={W.lightning1h!=null?W.lightning1h:0} T={T}/>
