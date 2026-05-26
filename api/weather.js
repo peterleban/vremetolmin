@@ -216,20 +216,58 @@ function mapConditionToIcon(condition) {
 }
 
 function parseForecast(data) {
+  const list = Array.isArray(data.forecast) ? data.forecast : [];
   return {
     updated: data.updated || null,
 
-    forecast: (data.forecast || []).slice(0, 3).map(day => ({
-      period: day.period || "",
-      condition: day.condition || "",
-      icon: mapConditionToIcon(day.condition),
+    forecast: list.map(item => {
+      // title: human label (e.g. "Torek", "Torek ponoči")
+      const title = item.title || item.period || ''
 
-      tempHigh: day.high ?? null,
-      tempLow: day.low ?? null,
+      // use summary (short condition) for mapping icon/condition
+      const summary = item.summary ? String(item.summary).trim() : null
 
-      precipitation: day.precipitation ?? 0
-    }))
-  };
+      // verbose forecast text
+      const text = item.text ? decodeEntities(String(item.text).trim()) : null
+
+      // temperature.value is often a string; parse to number when possible
+      const tempValRaw = item.temperature && (item.temperature.value ?? null)
+      const tempVal = tempValRaw != null ? parseFloat(String(tempValRaw).replace(',', '.')) : null
+      const tempUnit = item.temperature && item.temperature.unit ? String(item.temperature.unit) : null
+
+      // precipitation amount (may contain HTML entities or text like "<2 mm.")
+      let precipRaw = item.precipitation && (item.precipitation.amount ?? '')
+      precipRaw = precipRaw == null ? '' : decodeEntities(String(precipRaw)).trim()
+      if (precipRaw === '') precipRaw = null
+
+      return {
+        // UI-friendly fields
+        title,
+        period: title,
+        periodRaw: item.period || null,
+        summary,
+        text,
+
+        // map condition/icon from summary
+        condition: summary,
+        icon: mapConditionToIcon(summary || item.text || item.icon),
+
+        // temperature
+        tempHigh: tempVal,
+        tempLow: null,
+        tempUnit,
+
+        // precipitation
+        precipitation: {
+          amount: precipRaw,
+          probability: item.precipitation && item.precipitation.probability != null ? item.precipitation.probability : null,
+        },
+
+        // raw source
+        _raw: item,
+      }
+    })
+  }
 }
 
 

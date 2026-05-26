@@ -604,7 +604,7 @@ export default function App() {
                     km/h povp.
                   </div>
 
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:36,color:T.accent,marginTop:6}}>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:T.accent,marginTop:6}}>
                     {windGust}
                   </div>
 
@@ -733,8 +733,8 @@ export default function App() {
           <div className="fade-up" style={{ padding: '20px 15px 0' }}>
 
             {/* NEW CLEAN FORECAST TABLE */}
-            {Array.isArray(forecast) && forecast.map(day => (
-              <Card key={day.period} T={T} style={{ marginBottom: 10 }}>
+            {Array.isArray(forecast) && forecast.map((day, i) => (
+              <Card key={i + (day.title||day.period||i)} T={T} style={{ marginBottom: 10 }}>
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -744,13 +744,14 @@ export default function App() {
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span style={{ fontSize: 22 }}>{day.icon}</span>
-                    <span style={{
-                      fontWeight: 600,
-                      fontSize: 15,
-                      color: T.textPrimary
-                    }}>
-                      {day.period}
-                    </span>
+                    <div>
+                      <div style={{
+                        fontWeight: 600,
+                        fontSize: 15,
+                        color: T.textPrimary
+                      }}>{day.title || day.period}</div>
+                      {day.summary && <div style={{ fontSize: 12, color: T.textDim }}>{day.summary}</div>}
+                    </div>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
@@ -760,29 +761,28 @@ export default function App() {
                         fontSize: 20,
                         color: '#b91c1c'
                       }}>
-                        ↑ {day.tempHigh}°
+                        {day.tempUnit ? `${day.tempHigh}°${day.tempUnit}` : `↑ ${day.tempHigh}°`}
                       </div>
                     )}
 
-                    {day.tempLow != null && (
+                    {day.precipitation?.amount && (
                       <div style={{
                         fontFamily: "'DM Mono', monospace",
-                        fontSize: 16,
-                        color: '#1d6fa0'
-                      }}>
-                        ↓ {day.tempLow}°
-                      </div>
+                        fontSize: 13,
+                        color: '#1d6fa0',
+                        marginTop: 6
+                      }}>{day.precipitation.amount}</div>
                     )}
                   </div>
                 </div>
 
-                <div style={{
-                  fontSize: 13,
-                  color: T.textMuted,
-                  lineHeight: 1.65
-                }}>
-                  {day.condition}
-                </div>
+                {day.text && (
+                  <div style={{
+                    fontSize: 13,
+                    color: T.textMuted,
+                    lineHeight: 1.6
+                  }}>{day.text}</div>
+                )}
               </Card>
             ))}
 
