@@ -1,4 +1,6 @@
 const BASE = 'https://www.vremetolmin.si';
+//const BASE = '';
+
 const HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; VremeTolminApp/1.0)' };
 
 function timer(ms) { return AbortSignal.timeout(ms); }
@@ -221,45 +223,56 @@ function parseForecast(data) {
 }
 
 
-// ── Main handler ──────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
 
-  // Primary: tag_main.html
   let weatherData = null;
-  try {
-    const r = await fetch(`${BASE}/tag_main.html`, { headers: HEADERS, signal: timer(6000) });
-    if (r.ok) weatherData = parseTagMain(await r.text());
-  } catch (e) {
-    console.error('tag_main.html failed:', e.message);
-  }
-
-  // Secondary: HTML pages for stations + forecast
   let htmlSL = '';
+  let forecastData = null;
 
-  await Promise.all([
-    fetch(`${BASE}/`, { headers: HEADERS, signal: timer(8000) })
-      .then(r => r.ok ? r.text() : '')
-      .then(h => { htmlSL = h; }).catch(() => {}),
+  try {
+    const [tagRes, slRes, forecastRes] = await Promise.all([
+      fetch(`${BASE}/tag_main.html`, { headers: HEADERS, signal: timer(6000) }),
+      fetch(`${BASE}/`, { headers: HEADERS, signal: timer(8000) }),
+      fetch("https://www.vremetolmin.si/napoved.json")
+    ]);
 
-    async function loadForecast() {
-      const res = await fetch("https://www.vremetolmin.si/napoved.json");
-      const data = await res.json();
-  
-      console.log("RAW WEATHER DATA:", data);
-      const parsed = parseForecast(data);
-      console.log("PARSED FORECAST:", parsed);
-
-      return parseForecast(data);
+    if (tagRes.ok) {
+      weatherData = parseTagMain(await tagRes.text());
     }
 
+    if (slRes.ok) {
+      htmlSL = await slRes.text();
+    }
 
-  ]);
+    if (forecastRes.ok) {
+      const data = await forecastRes.json();
+
+      console.log("RAW WEATHER DATA:", data);
+
+      forecastData = parseForecast(data);
+
+      console.log("PARSED FORECAST:", forecastData);
+    }
+
+  } catch (e) {
+    console.error("Weather fetch failed:", e.message);
+  }
 
   const nearbyStations = parseNearbyStations(htmlSL);
-  const arsoStations   = parseArsoStations(htmlSL);
-  const forecast = parseForecast(napoved);
+  const arsoStations = parseArsoStations(htmlSL);
+
+  // FINAL OUTPUT (example structure)
+  const forecast = forecastData ?? { forecast: [] };
+
+  return res.status(200).json({
+    weather: weatherData,
+    nearbyStations,
+    arsoStations,
+    forecast
+  });
+}
 
   res.status(200).json({
     ...(weatherData || {}),
@@ -274,9 +287,7 @@ export default async function handler(req, res) {
       conditionSL:    weatherData?.conditionSL ?? null,
       nearbyCount:    nearbyStations.length,
       arsoCount:      arsoStations.length,
-      forecastParsed: !!(forecast.tonight || forecast.tomorrowDesc),
       htmlSLbytes:    htmlSL.length,
-      htmlENbytes:    htmlEN.length,
     },
   });
-}
+
