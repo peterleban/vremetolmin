@@ -145,8 +145,7 @@ function parseTagMain(text) {
     etmesec:          cleanWD(f[62]),
     soil5cm:          cleanWD(f[14]),
     soil30cm:         cleanWD(f[61]),
-    soil0cm:          cleanWD(f[80]),
-    soilmoist:        cleanWD(f[81]),
+    soilmoist:        cleanWD(f[80]),
     lastUpdate:       `${cleanWD(f[0])} ${cleanWD(f[1])}`,
     source:           'tag_main.html',
   };

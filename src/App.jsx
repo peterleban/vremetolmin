@@ -702,10 +702,9 @@ export default function App() {
 
             <Card T={T} style={{marginBottom:11}}>
               <CardTitle icon={<Ico.Leaf/>} T={T}>Zemlja</CardTitle>
-              <Row label="Temperatura na površini"       value={W.soil0cm!=null?`${W.soil0cm} °C`:'—'} sub={W.soil0cm!=null?`ob ${W.soil0cm}`:''} T={T}/>
-              <Row label="Temperatura na globini 5 cm"   value={W.soil5cm!=null?`${W.soil5cm} °C`:'—'} sub={W.soil5cm!=null?`ob ${W.soil5cm}`:''} T={T}/>
-              <Row label="Temperatura na globini 30 cm"  value={W.soil30cm!=null?`${W.soil30cm} °C`:'—'} sub={W.soil30cm!=null?`ob ${W.soil30cm}`:''} T={T}/>
-              <Row label="Vlažnost zgornje prsti"        value={W.soilmoist!=null?`${W.soilmoist} %`:'—'} sub={W.soilmoist!=null?'%':''} T={T}/>
+              <Row label="Temperatura na globini 5 cm"   value={W.soil5cm!=null?`${W.soil5cm} °C`:'—'} T={T}/>
+              <Row label="Temperatura na globini 30 cm"  value={W.soil30cm!=null?`${W.soil30cm} °C`:'—'} T={T}/>
+              <Row label="Vlažnost zgornje prsti"        value={W.soilmoist!=null?`${W.soilmoist} %`:'—'} T={T}/>
               <Row label="Izhlapevanje danes"            value={W.etdanes!=null?`${W.etdanes} mm`:'—'} T={T}/>
               <Row label="Izhlapevanje tekoči mesec"     value={W.etmesec!=null?`${W.etmesec} mm`:'—'} T={T}/>
               <Row label="Padavine tekoči mesec"         value={W.rainMonth!=null?`${W.rainMonth} mm`:'—'} T={T}/>
