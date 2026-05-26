@@ -7,6 +7,52 @@ async function fetchWeather() {
   return res.json()
 }
 
+// app/page.js  (Next.js App Router)
+
+/*  
+  const data = await getForecast();
+
+  const forecast = data.forecast || [];
+
+  return (
+    <main style={{ padding: 20 }}>
+      <h1>Weather Forecast</h1>
+
+      <table border="1" cellPadding="10">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Temperature</th>
+            <th>Precipitation</th>
+            <th>Text</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {forecast.map((item, index) => (
+            <tr key={index}>
+              <td>{item.title}</td>
+
+              <td>
+                {item.temperature?.value}
+                °{item.temperature?.unit}
+              </td>
+
+              <td>
+                {item.precipitation?.amount || "-"}
+              </td>
+
+              <td>{item.text}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </main>
+  );
+}
+*/
+
+
 // ── Forecast translation EN → SL ──────────────────────────────────────────────
 function translateForecast(text) {
   if (!text) return null
@@ -211,7 +257,7 @@ function deriveCondition(W) {
     const rate = W.rainRate ?? 0
     return rate > 3 ? 'heavy_rain' : 'rain'
   }
-  if (sl.includes('oblačno') || sl.includes('pokrito') || sl.includes('cloud')) return 'cloudy'
+  if (sl.includes('oblačno') || sl.includes('oblačno') || sl.includes('cloud')) return 'cloudy'
   if (sl.includes('delno') || sl.includes('partly'))      return 'partly_cloudy'
   if (sl.includes('jasno') || sl.includes('sončno') || sl.includes('sunny') || sl.includes('clear')) return 'sunny'
   // Fallback to numeric
@@ -322,18 +368,18 @@ function WindCompass({ dir, T }) {
 function Arc({ value, min, max, color, label, unit, T }) {
   const safeVal = value != null ? Math.max(0, value) : null
   const pct = Math.min(1,Math.max(0,((safeVal??min)-min)/(max-min)))
-  const r=30,cx=40,cy=42
+  const r=38,cx=40,cy=42
   const pt=deg=>{const rad=(deg-90)*Math.PI/180;return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)]}
   const arc=(a,b)=>{const[x1,y1]=pt(a),[x2,y2]=pt(b);return`M${x1},${y1} A${r},${r} 0 ${b-a>180?1:0} 1 ${x2},${y2}`}
   const displayVal = safeVal==null?'—':label==='Tlak'?Math.round(safeVal):safeVal
-  const fontSize = label==='Tlak'?11:13
+  const fontSize = label==='Tlak'?14:16
   return (
     <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3}}>
       <svg viewBox="0 0 80 60" style={{width:76,height:56}}>
         <path d={arc(-130,130)} fill="none" stroke="rgba(0,0,0,0.1)" strokeWidth="5" strokeLinecap="round"/>
         {safeVal!=null&&<path d={arc(-130,-130+pct*260)} fill="none" stroke={color} strokeWidth="5" strokeLinecap="round" opacity="0.85"/>}
-        <text x={cx} y={cy-8} textAnchor="middle" fill={T.textPrimary} fontSize={fontSize} fontFamily="'DM Mono',monospace" fontWeight="600">{displayVal}</text>
-        <text x={cx} y={cy+4} textAnchor="middle" fill={T.textDim} fontSize="7">{unit}</text>
+        <text x={cx} y={cy-8} textAnchor="middle" fill={T.accent} fontSize={fontSize} fontFamily="'DM Mono',monospace" fontWeight="600">{displayVal}</text>
+        <text x={cx} y={cy+4} textAnchor="middle" fill={T.textDim} fontSize="14">{unit}</text>
       </svg>
       <span style={{fontSize:10,color:T.textDim,letterSpacing:'0.05em',textTransform:'uppercase'}}>{label}</span>
     </div>
@@ -436,7 +482,7 @@ export default function App() {
   const windMaxToday = W.windMaxToday ?? '—'
   const nearby    = W.nearbyStations ?? []
   const arso      = W.arsoStations   ?? []
-  const forecast  = W.forecast       ?? {}
+  const forecast  = W.forecast       ?? []
 
   const tempNum = parseFloat(temp)
   const tempCol = isNaN(tempNum)?T.heroTemp:tempNum<0?'#93c5fd':tempNum<10?'#67e8f9':tempNum<20?T.heroTemp:tempNum<28?'#fbbf24':'#fb923c'
@@ -516,8 +562,8 @@ export default function App() {
                 }
               </div>
               <div style={{display:'flex',gap:14,marginTop:6,flexWrap:'wrap'}}>
-                <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroLow,fontWeight:600,textShadow:'0 1px 6px rgba(0,0,0,0.3)'}}>↓ {tempMin}°</span>
-                <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroHigh,fontWeight:600,textShadow:'0 1px 6px rgba(0,0,0,0.3)'}}>↑ {tempMax}°</span>
+                <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroLow,fontWeight:600,textShadow:'0 1px 1px rgba(0,0,0,0.3)'}}>↓ {tempMin}°</span>
+                <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroHigh,fontWeight:600,textShadow:'0 1px 1px rgba(0,0,0,0.3)'}}>↑ {tempMax}°</span>
                 {W.conditionSL&&<span style={{fontSize:12,color:T.accent,fontWeight:500}}>{W.conditionSL}</span>}
               </div>
             </div>
@@ -546,11 +592,11 @@ export default function App() {
                 <WindCompass dir={windDir} T={T}/>
 
                 <div style={{display:'flex',flexDirection:'column'}}>
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:'#0284c7',marginTop:6}}>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:T.accent,marginTop:6}}>
                     {windDir}
                   </div>
 
-                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:T.textPrimary}}>
+                  <div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:T.accent}}>
                     {d(windSpeed)}
                   </div>
 
@@ -683,53 +729,87 @@ export default function App() {
         )}
 
         {/* ━━ NAPOVED ━━ */}
-        {tab==='napoved'&&(
-          <div className="fade-up" style={{padding:'20px 15px 0'}}>
-            {/* Condition from tag_main.html [87] — already Slovenian */}
-            {W.forecastCondition&&(
-              <Card T={T} style={{marginBottom:10,textAlign:'center'}}>
-                <div style={{fontSize:14,color:T.accent,fontWeight:600}}>{W.forecastCondition}</div>
-                <div style={{fontSize:11,color:T.textDim,marginTop:4}}>Weather Display napoved</div>
-              </Card>
-            )}
-            {[
-              {day:'Nocoj',   icon:'🌙',high:null,               low:forecast.tonightLow??tempMin, desc:translateForecast(forecast.tonight)??'Pretežno jasno. Hladno.'},
-              {day:'Jutri',   icon:'☀️',high:forecast.tomorrowHigh, low:forecast.tomorrowLow,     desc:translateForecast(forecast.tomorrowDesc)??'Sončno. Toplo.'},
-              ...(forecast.tomorrowNight?[{day:'Jutri zvečer',icon:'🌙',high:null,low:forecast.tomorrowNightLow,desc:translateForecast(forecast.tomorrowNight)}]:[]),
-            ].map(({day,icon,high,low,desc})=>(
-              <Card key={day} T={T} style={{marginBottom:10}}>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:9}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8}}>
-                    <span style={{fontSize:22}}>{icon}</span>
-                    <span style={{fontWeight:600,fontSize:15,color:T.textPrimary}}>{day}</span>
+        {tab === 'napoved' && (
+          <div className="fade-up" style={{ padding: '20px 15px 0' }}>
+
+            {/* NEW CLEAN FORECAST TABLE */}
+            {Array.isArray(forecast) && forecast.map(day => (
+              <Card key={day.period} T={T} style={{ marginBottom: 10 }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: 9
+                }}>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 22 }}>{day.icon}</span>
+                    <span style={{
+                      fontWeight: 600,
+                      fontSize: 15,
+                      color: T.textPrimary
+                    }}>
+                      {day.period}
+                    </span>
                   </div>
-                  <div style={{textAlign:'right'}}>
-                    {high!=null&&<div style={{fontFamily:"'DM Mono',monospace",fontSize:20,color:'#b91c1c'}}>↑ {high}°</div>}
-                    {low!=null&&<div style={{fontFamily:"'DM Mono',monospace",fontSize:16,color:'#1d6fa0'}}>↓ {low}°</div>}
+
+                  <div style={{ textAlign: 'right' }}>
+                    {day.tempHigh != null && (
+                      <div style={{
+                        fontFamily: "'DM Mono', monospace",
+                        fontSize: 20,
+                        color: '#b91c1c'
+                      }}>
+                        ↑ {day.tempHigh}°
+                      </div>
+                    )}
+
+                    {day.tempLow != null && (
+                      <div style={{
+                        fontFamily: "'DM Mono', monospace",
+                        fontSize: 16,
+                        color: '#1d6fa0'
+                      }}>
+                        ↓ {day.tempLow}°
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div style={{fontSize:13,color:T.textMuted,lineHeight:1.65}}>{desc}</div>
+
+                <div style={{
+                  fontSize: 13,
+                  color: T.textMuted,
+                  lineHeight: 1.65
+                }}>
+                  {day.condition}
+                </div>
               </Card>
             ))}
-            {forecast.updated&&<div style={{fontSize:10,color:T.textDim,marginBottom:12,paddingLeft:4}}>Napoved osvežena: {forecast.updated}</div>}
-            {arso.length>0&&(
-              <Card T={T} style={{marginTop:4}}>
-                <CardTitle icon={<Ico.Pin/>} right="ARSO" T={T}>Uradne postaje</CardTitle>
-                {arso.map((s,i)=>(
-                  <div key={i} style={{display:'grid',gridTemplateColumns:'1.3fr 0.8fr 0.9fr 0.6fr',gap:4,padding:'7px 0',borderBottom:'1px solid rgba(0,0,0,0.07)',alignItems:'baseline'}}>
-                    <span style={{fontSize:12,color:T.textPrimary}}>{s.name}</span>
-                    <span style={{fontFamily:"'DM Mono',monospace",fontSize:12,color:'#d97706'}}>{s.temp||'—'}</span>
-                    <span style={{fontSize:11,color:T.textDim}}>{s.wind&&s.wind!=='-'?s.wind:'—'}</span>
-                    <span style={{fontFamily:"'DM Mono',monospace",fontSize:11,color:'#1d6fa0'}}>{s.rain||'0 mm'}</span>
-                  </div>
-                ))}
-              </Card>
+
+            {/* Updated timestamp */}
+            {W?.updated && (
+              <div style={{
+                fontSize: 10,
+                color: T.textDim,
+                marginBottom: 12,
+                paddingLeft: 4
+              }}>
+                Napoved osvežena: {W.updated}
+              </div>
             )}
-            <p style={{fontSize:10,color:T.textDim,marginTop:12,lineHeight:1.6,padding:'0 4px'}}>
-              Napoved WXSIM (hobi)</p>
+
+            <p style={{
+              fontSize: 10,
+              color: T.textDim,
+              marginTop: 12,
+              lineHeight: 1.6,
+              padding: '0 4px'
+            }}>
+              Napoved WXSIM (hobi)
+            </p>
+
           </div>
         )}
-
         {/* ━━ RADAR ━━ */}
         {tab==='radar'&&(
           <div className="fade-up" style={{padding:'20px 15px 0'}}>
@@ -755,7 +835,8 @@ export default function App() {
               <div style={{fontSize:11,color:T.textDim,textAlign:'center',marginBottom:10}}>Osvežuje se vsako minuto</div>
               
             </Card>
-            <Card T={T} style={{marginBottom:11,padding:14}}>
+
+{/*}            <Card T={T} style={{marginBottom:11,padding:14}}>
               <CardTitle icon={<Ico.Bolt/>} right="Boltek detektor" T={T}>Strele — StormVue</CardTitle>
               <div style={{borderRadius:12,overflow:'hidden',background:'rgba(0,0,0,0.06)'}}>
                 <iframe src="https://vremetolmin.si/stormvue.html" title="StormVue strele"
@@ -768,7 +849,7 @@ export default function App() {
                 <Row label="Danes skupaj"  value={W.lightningDay!=null?W.lightningDay:0} T={T}/>
               </div>
             </Card>
-            
+ */}           
           </div>
         )}
 

@@ -1,61 +1,3 @@
-/**
- * /api/weather.js  –  Vercel serverless function
- *
- * Primary data source:
- *   https://www.vremetolmin.si/tag_main.html
- *   Weather Display pipe-separated format, updated every minute.
- *
- * Field index mapping confirmed from live data:
- *  [0]  date              "8/5/2026"
- *  [1]  time              "10:28"
- *  [2]  condition (SL)    "Jasno"
- *  [3]  temp °C           "16,4"   (comma decimal)
- *  [4]  humidity %        "73"
- *  [5]  dew point °C      "11.5"
- *  [6]  wind speed km/h   "3.5"
- *  [7]  wind gust km/h    "6.4"
- *  [8]  wind bearing °    "108"
- *  [9]  rain today mm     "0,0"    (comma decimal)
- *  [10] rain rate mm/h    "0.00"
- *  [11] pressure hPa      "1015.9"
- *  [12] pressure trend    "-0.6"
- *  [13] solar W/m²        "677"
- *  [14] feels like °C     "15.1"
- *  [15] UV index          "0.5"
- *  [16] sunrise           "05:41"
- *  [17] sunset            "20:22"
- *  [18] day length        "14:41"
- *  [19] moonrise          "01:53"
- *  [21] moon illumination "65%"
- *  [22] wind speed m/s    "0.9"
- *  [23] wind gust m/s     "1.3"
- *  [24] Beaufort          "2"
- *  [28] wind dir string   "JV"     (already Slovenian)
- *  [30] today max temp    "16.4"
- *  [31] time of max       "10:24"
- *  [32] today min temp    "7.1"
- *  [33] time of min       "03:42"
- *  [34] yesterday max     "22.1"
- *  [35] time yest max     "15:13"
- *  [36] yesterday min     "9.2"
- *  [37] time yest min     "23:59"
- *  [38] rain yesterday mm "0"
- *  [41] humidity max %    "97"
- *  [42] time hum max      "05:20"
- *  [43] humidity min %    "72"
- *  [44] time hum min      "10:16"
- *  [50] rain this month   "75.4"
- *  [51] rain this year    "496.3"
- *  [57] max gust text     "**9 km/h** (03:07)"
- *  [68] solar kWh today   "1.4kwh"
- *  [69] solar kWh month   "38.0kwh"
- *  [70] solar kWh year    "360.6kwh"
- *  [82] moon age string   "Moon age: 20 days,17 hours,33 minutes,65%"
- *  [86] pressure mmHg     "762"
- *  [87] forecast (SL)     "Soncno/Brez padavin"
- *  [88] temp change   "+2.8"
- */
-
 const BASE = 'https://www.vremetolmin.si';
 const HEADERS = { 'User-Agent': 'Mozilla/5.0 (compatible; VremeTolminApp/1.0)' };
 
@@ -260,56 +202,24 @@ function parseArsoStations(html) {
   return stations;
 }
 
-// ── Forecast from index_en.php ────────────────────────────────────────────────
-function parseForecast(html) {
-  const result = {
-    updated: null,
-    tonight: null, tonightLow: null,
-    tomorrowDesc: null, tomorrowHigh: null, tomorrowLow: null,
-    tomorrowNight: null, tomorrowNightLow: null,
-  };
-  const updM = html.match(/Updated:\s*([^\n|<]+)/i);
-  if (updM) result.updated = decodeEntities(updM[1].trim());
+// ── Forecast from napoved.json ────────────────────────────────────────────────
+function parseForecast(data) {
+  return {
+    updated: data.updated || null,
 
-  const trRe = /<tr[^>]*>([\s\S]*?)<\/tr>/gi;
-  let trM;
-  while ((trM = trRe.exec(html)) !== null) {
-    const cells = [];
-    const tdRe = /<td[^>]*>([\s\S]*?)<\/td>/gi;
-    let tdM;
-    while ((tdM = tdRe.exec(trM[1])) !== null) cells.push(cleanCell(tdM[1]));
-    if (cells.length < 2 || cells[1].length < 15) continue;
-    if (/^[\d°\s\/\-\.→]+$/.test(cells[1])) continue;
-    const label = cells[0].toLowerCase().trim();
-    const desc  = cells[1].trim();
-    const hiM = desc.match(/High[:\s]+(-?\d+)/i);
-    const loM = desc.match(/Low[:\s]+(-?\d+)/i);
-    if (label.includes('tonight') || label.includes('rest of')) {
-      result.tonight = desc;
-      if (loM) result.tonightLow = parseInt(loM[1], 10);
-    } else if (label.includes('night') || label.includes('evening')) {
-      if (!result.tomorrowNight) {
-        result.tomorrowNight = desc;
-        if (loM) result.tomorrowNightLow = parseInt(loM[1], 10);
-      }
-    } else if (label.length > 0 && label.length < 30) {
-      if (!result.tomorrowDesc) {
-        result.tomorrowDesc = desc;
-        if (hiM) result.tomorrowHigh = parseInt(hiM[1], 10);
-        if (loM) result.tomorrowLow  = parseInt(loM[1], 10);
-      }
-    }
-  }
-  if (!result.tonightLow) {
-    const m = html.match(/Low[:\s]+(\d+)°/i);
-    if (m) result.tonightLow = parseInt(m[1], 10);
-  }
-  if (!result.tomorrowHigh) {
-    const m = html.match(/High[:\s]+(\d+)°/i);
-    if (m) result.tomorrowHigh = parseInt(m[1], 10);
-  }
-  return result;
+    forecast: (data.forecast || []).slice(0, 3).map(day => ({
+      period: day.period || "",
+      condition: day.condition || "",
+      icon: mapConditionToIcon(day.condition),
+
+      tempHigh: day.high ?? null,
+      tempLow: day.low ?? null,
+
+      precipitation: day.precipitation ?? 0
+    }))
+  };
 }
+
 
 // ── Main handler ──────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
@@ -326,26 +236,30 @@ export default async function handler(req, res) {
   }
 
   // Secondary: HTML pages for stations + forecast
-  let htmlSL = '', htmlEN = '', htmlN1 = '';
+  let htmlSL = '';
 
   await Promise.all([
     fetch(`${BASE}/`, { headers: HEADERS, signal: timer(8000) })
       .then(r => r.ok ? r.text() : '')
       .then(h => { htmlSL = h; }).catch(() => {}),
 
-    fetch(`${BASE}/index_en.php`, { headers: HEADERS, signal: timer(8000) })
-      .then(r => r.ok ? r.text() : '')
-      .then(h => { htmlEN = h; }).catch(() => {}),
+    async function loadForecast() {
+      const res = await fetch("https://www.vremetolmin.si/napoved.json");
+      const data = await res.json();
+  
+      console.log("RAW WEATHER DATA:", data);
+      const parsed = parseForecast(data);
+      console.log("PARSED FORECAST:", parsed);
 
-      //fetch(`${BASE}/n1.php`, { headers: HEADERS, signal: timer(8000) })
-      fetch(`${BASE}/n1.php`, { headers: HEADERS, signal: timer(8000) })
-      .then(r => r.ok ? r.text() : '')
-      .then(h => { htmlN1 = h; }).catch(() => {}),
+      return parseForecast(data);
+    }
+
+
   ]);
 
-  const nearbyStations = parseNearbyStations(htmlSL || htmlEN);
-  const arsoStations   = parseArsoStations(htmlSL || htmlEN);
-  const forecast = parseForecast(htmlN1 || htmlEN);
+  const nearbyStations = parseNearbyStations(htmlSL);
+  const arsoStations   = parseArsoStations(htmlSL);
+  const forecast = parseForecast(napoved);
 
   res.status(200).json({
     ...(weatherData || {}),
