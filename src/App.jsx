@@ -333,7 +333,7 @@ const Ico = {
 
 const TABS = [
   {id:'zdaj',     label:'Trenutno', Icon:TabIcons.zdaj},
-  {id:'radar',    label:'Kamere',   Icon:Ico.Cam},
+  {id:'kamere',   label:'V sliki',  Icon:Ico.Cam},
   {id:'napoved',  label:'Napoved',  Icon:TabIcons.napoved},
   {id:'padavine', label:'Nevihte',  Icon:Ico.Bolt},  
   {id:'okolje',   label:'Okolje',   Icon:Ico.Leaf},
@@ -833,7 +833,7 @@ export default function App() {
 
           </div>
         )}
-        {/* ━━ RADAR ━━ */}
+        {/* ━━ V SLIKI ━━ */}
         {tab==='kamere'&&(
           <div className="fade-up" style={{padding:'20px 15px 0'}}>
             <Card T={T} style={{marginBottom:11,padding:14}}>
@@ -849,26 +849,23 @@ export default function App() {
                   imgStyle={{borderRadius:12,maxHeight:300,objectFit:'cover',objectPosition:'50% 55%'}}
                   fallbackText="Kamera ni dosegljiva" T={T}/>
               </div>
-              <div style={{fontSize:11,color:T.textDim,textAlign:'center',marginBottom:10}}>Osvežuje se vsako minuto</div>
+              <div style={{fontSize:11,color:T.textDim,textAlign:'right',marginBottom:10}}>Osvežuje se vsako minuto</div>
              <div style={{borderRadius:12,overflow:'hidden',marginBottom:10}}>
                 <LiveImage src="https://www.vremetolmin.si/aurora/image.jpg" alt="Aurora Tolmin"
                   imgStyle={{borderRadius:12,maxHeight:200,objectFit:'cover',objectPosition:'50% 55%'}}
                   fallbackText="Kamera ni dosegljiva" T={T}/>
               </div>
-              <div style={{fontSize:11,color:T.textDim,textAlign:'center',marginBottom:10}}>Osvežuje se vsako minuto</div>
-              
-            </Card>
-
-{/*}            <Card T={T} style={{marginBottom:11,padding:14}}>
-              <CardTitle icon={<Ico.Bolt/>} right="Boltek detektor" T={T}>Strele — StormVue</CardTitle>
-
-              <div style={{marginTop:10}}>
-                <Row label="Zadnja minuta" value={W.lightning1min!=null?W.lightning1min:0} T={T}/>
-                <Row label="Zadnja ura"    value={W.lightning1h!=null?W.lightning1h:0} T={T}/>
-                <Row label="Danes skupaj"  value={W.lightningDay!=null?W.lightningDay:0} T={T}/>
+              <div style={{fontSize:11,color:T.textDim,textAlign:'right',marginBottom:10}}>Osvežuje se vsako minuto</div>
+            </Card> 
+            <Card T={T} style={{marginBottom:11,padding:14}}>
+              <CardTitle icon='📡' T={T}>Satelitska slika (METEOR M2-3/4)</CardTitle>
+              <div style={{borderRadius:12,overflow:'hidden',marginBottom:10}}>
+                <LiveImage src="https://www.vremetolmin.si/sateliti/sat_zadnja.jpg" alt="Satelitska slika"
+                  imgStyle={{borderRadius:12,height:'100%',objectFit:'cover',objectPosition:'50% 55%'}}
+                  fallbackText="Satelitska slika ni na voljo" T={T}/>
               </div>
-            </Card>
- */}           
+               <div style={{fontSize:11,color:T.textDim,textAlign:'right',marginBottom:10}}>Osvežuje se 2-4 krat dnevno</div>  
+            </Card>                
           </div>
         )}
 
@@ -918,7 +915,7 @@ export default function App() {
               <div style={{fontSize:34,marginBottom:11}}>☁️</div>
               <div style={{fontSize:19,fontWeight:600,marginBottom:8,color:T.textPrimary}}>Podprite vremetolmin.si</div>
               <div style={{fontSize:13,color:T.textMuted,lineHeight:1.7,maxWidth:270,margin:'0 auto'}}>
-                Brezplačna, neprofitna vremenska storitev za dolino Tolminke — vzdržuje jo ena oseba za celotno skupnost.
+                Brezplačna, neprofitna vremenska storitev za dolino Tolminke.
               </div>
               <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap',margin:'18px 0'}}>
                 {['€5','€10','€20','Drugo'].map((v,i)=>(
@@ -934,10 +931,10 @@ export default function App() {
               </a>
             </Card>
             {[
-              {icon:'🌡️',title:'Davis vremenska postaja',desc:'Profesionalni senzorji za temperaturo, vlago, veter, dež, solarno in UV — vzdrževanje kot hobi.'},
+              {icon:'🌡️',title:'Davis vremenska postaja',desc:'Senzorji za temperaturo, vlago, veter, dež, sonce, zrak.'},
               {icon:'⚡',title:'Boltek detektor strel',desc:'Zaznavanje strel v realnem času za dolino Soče.'},
-              {icon:'📡',title:'Satelitski sprejemnik',desc:'Neposredni sprejem posnetkov METEOR M2-3 in M2-4 v Tolminu.'},
-              {icon:'📍',title:'Več postaj v dolini',desc:'Podatki iz Tolminke, požarnega stolpa in okoliških postaj — brezplačno za vso skupnost.'},
+              {icon:'📡',title:'Satelitski sprejemnik',desc:'Sprejem slik s satelitov METEOR M2-3 in M2-4.'},
+              {icon:'📍',title:'Več postaj v dolini',desc:'Podatki z več vremenskih postaj v naši okolici.'},
             ].map(({icon,title,desc})=>(
               <Card key={title} T={T} style={{marginBottom:10,display:'flex',alignItems:'flex-start',gap:14}}>
                 <div style={{fontSize:22,flexShrink:0,marginTop:2}}>{icon}</div>
@@ -948,8 +945,7 @@ export default function App() {
               </Card>
             ))}
             <p style={{fontSize:10,color:T.textDim,textAlign:'center',marginTop:14,lineHeight:1.7}}>
-              Podpira novagorica.eu in društvo ZEVS<br/>
-              Amaterski instrumenti · Ne za nujne primere
+              Podpira novagorica.eu<br/>
             </p>
           </div>
         )}
