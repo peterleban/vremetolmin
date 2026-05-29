@@ -85,17 +85,35 @@ const THEMES = {
     label:'DELNO OBLAČNO 🌤️',
   },
 
+  night: {
+    bg: 'linear-gradient(175deg,#050a16 0%,#0f1d3a 18%,#152b51 36%,#1c3971 54%,#253f7f 70%,#2d4a92 85%,#1e3a74 100%)',
+    orb: 'radial-gradient(ellipse 70% 40% at 50% 10%,rgba(206,229,255,.34) 0%,rgba(170,200,255,.16) 36%,transparent 72%)',
+    card:'rgba(15,23,42,0.82)',
+    cardBorder:'rgba(166,180,200,0.18)',
+    tabBar:'rgba(15,23,42,0.88)',
+    tabBarBorder:'rgba(130,160,200,0.16)',
+    accent:'#60a5fa',
+    textPrimary:'#f8fafc',
+    textMuted:'#cbd5e1',
+    textDim:'#94a3b8',
+    heroTemp:'#eff6ff',
+    heroLow:'#93c5fd',
+    heroHigh:'#bfdbfe',
+    heroDew:'#cbd5e1',
+    label:'NOČ 🌙',
+  },
+
   cloudy: {
     bg: 'linear-gradient(175deg,#2d3a4a 0%,#3d5168 18%,#546880 36%,#6b7f92 54%,#8595a4 70%,#9aaab6 85%,#7a8e9c 100%)',
     orb: 'radial-gradient(ellipse 70% 35% at 50% 5%,rgba(180,200,220,.35) 0%,rgba(140,165,185,.15) 50%,transparent 72%)',
-    card:'rgba(255,255,255,0.72)',
-    cardBorder:'rgba(255,255,255,0.86)',
-    tabBar:'rgba(255,255,255,0.82)',
+    card:'rgba(255,255,255,0.84)',
+    cardBorder:'rgba(255,255,255,0.88)',
+    tabBar:'rgba(255,255,255,0.86)',
     tabBarBorder:'rgba(160,180,200,0.24)',
     accent:'#334e68',
-    textPrimary:'#111827',
-    textMuted:'#374151',
-    textDim:'#4b5563',
+    textPrimary:'#0f172a',
+    textMuted:'#24374a',
+    textDim:'#1f2937',
     heroTemp:'#111827',
     heroLow:'#1d4ed8',
     heroHigh:'#b91c1c',
@@ -183,16 +201,16 @@ const THEMES = {
   },
 
   fog: {
-    bg: 'linear-gradient(175deg,#6b7a88 0%,#7d8d9c 18%,#919fac 36%,#a5b0ba 54%,#b5bec6 70%,#c2cad0 85%,#aab4bc 100%)',
-    orb: 'radial-gradient(ellipse 80% 40% at 50% 5%,rgba(210,220,230,.4) 0%,rgba(180,195,210,.18) 50%,transparent 72%)',
-    card:'rgba(255,255,255,0.74)',
+    bg: 'linear-gradient(175deg,#596674 0%,#6b7b8c 18%,#8090a5 36%,#98a5b8 54%,#abb7c6 70%,#c0cad2 85%,#aab4bc 100%)',
+    orb: 'radial-gradient(ellipse 80% 40% at 50% 5%,rgba(220,230,240,.45) 0%,rgba(190,205,220,.22) 50%,transparent 72%)',
+    card:'rgba(255,255,255,0.84)',
     cardBorder:'rgba(255,255,255,0.88)',
-    tabBar:'rgba(255,255,255,0.84)',
+    tabBar:'rgba(255,255,255,0.86)',
     tabBarBorder:'rgba(150,170,190,0.24)',
-    accent:'#2d4a5a',
-    textPrimary:'#111827',
-    textMuted:'#374151',
-    textDim:'#4b5563',
+    accent:'#1f4360',
+    textPrimary:'#0f172a',
+    textMuted:'#334155',
+    textDim:'#1f2937',
     heroTemp:'#111827',
     heroLow:'#2563eb',
     heroHigh:'#b91c1c',
@@ -206,14 +224,15 @@ function deriveCondition(W) {
   const sl = (W.conditionSL ?? '').toLowerCase()
   if (sl.includes('nevihta') || sl.includes('storm'))     return 'storm'
   if (sl.includes('sneg') || sl.includes('snow'))         return 'snow'
-  if (sl.includes('megla') || sl.includes('fog'))         return 'fog'
-  if (sl.includes('dež') || sl.includes('plohe') || sl.includes('rain')) {
+  if (sl.includes('megla') || sl.includes('fog') || sl.includes('meglica')) return 'fog'
+  if (sl.includes('noc') || sl.includes('night'))         return 'night'
+  if (sl.includes('dez') || sl.includes('plohe') || sl.includes('rain')) {
     const rate = W.rainRate ?? 0
     return rate > 3 ? 'heavy_rain' : 'rain'
   }
-  if (sl.includes('oblačno') || sl.includes('oblačno') || sl.includes('cloud')) return 'cloudy'
+  if (sl.includes('oblacn') || sl.includes('oblačn') || sl.includes('cloud')) return 'cloudy'
   if (sl.includes('delno') || sl.includes('partly'))      return 'partly_cloudy'
-  if (sl.includes('jasno') || sl.includes('sončno') || sl.includes('sunny') || sl.includes('clear')) return 'sunny'
+  if (sl.includes('jasno') || sl.includes('soncno') || sl.includes('sunny') || sl.includes('clear')) return 'sunny'
   // Fallback to numeric
   const solar = W.solar ?? 500, rain = W.rain ?? 0, rate = W.rainRate ?? 0
   if (rate > 5) return 'storm'
@@ -292,7 +311,7 @@ const TABS = [
   {id:'padavine', label:'Nevihte',  Icon:Ico.Bolt},  
   {id:'okolje',   label:'Okolje',   Icon:Ico.Leaf},
   {id:'postaje',  label:'Postaje',  Icon:TabIcons.postaje},
-  {id:'donacija', label:'Donacija', Icon:TabIcons.donacija},
+  {id:'donacija', label:'Info', Icon:TabIcons.donacija},
 ]
 
 // ── Wind compass (Slovenian labels) ───────────────────────────────────────────
@@ -436,6 +455,29 @@ function DailyTrendChart({data,T}) {
   )
 }
 
+function ForecastImageRow({title, urls, T}) {
+  if (!Array.isArray(urls) || urls.length === 0) return null
+  return (
+    <div style={{marginTop:14}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+        <div style={{fontSize:12,fontWeight:700,color:T.textMuted,letterSpacing:'0.08em',textTransform:'uppercase'}}>{title}</div>
+      </div>
+      <div style={{display:'flex',overflowX:'auto',gap:14,paddingBottom:8}}>
+        {urls.map((src, idx) => (
+          <div key={src} style={{minWidth:220,flex:'0 0 auto'}}>
+            <img
+              src={src}
+              alt={`${title} ${idx + 1}`}
+              loading="lazy"
+              style={{width:'100%',height:380,objectFit:'cover',borderRadius:16,background:'rgba(255,255,255,0.08)',display:'block'}}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // safe display helpers
 function d(v)  { return v != null ? v : '—' }
 function nn(v) { return v != null ? Math.max(0, v) : 0 }  // non-null, non-negative
@@ -504,6 +546,21 @@ export default function App() {
   const arso      = W.arsoStations   ?? []
   const forecast  = W.forecast       ?? []
   const dailyData = W.dailyData     ?? []
+
+  const aladinImages = [
+    'https://tolmin.zevs.si/forecast/aladin_i.png',
+    'https://tolmin.zevs.si/forecast/aladin_i_1.png',
+    'https://tolmin.zevs.si/forecast/aladin_i_2.png',
+    'https://tolmin.zevs.si/forecast/aladin_i_3.png',
+    'https://tolmin.zevs.si/forecast/aladin_i_4.png'
+  ]
+  const iconImages = [
+    'https://tolmin.zevs.si/forecast/icon_p1.png',
+    'https://tolmin.zevs.si/forecast/icon_p2.png',
+    'https://tolmin.zevs.si/forecast/icon_p3.png',
+    'https://tolmin.zevs.si/forecast/icon_p4.png',
+    'https://tolmin.zevs.si/forecast/icon_p5.png',
+  ]
 
   const tempNum = parseFloat(temp)
   const tempCol = isNaN(tempNum)?T.heroTemp:tempNum<0?'#93c5fd':tempNum<10?'#67e8f9':tempNum<20?T.heroTemp:tempNum<28?'#fbbf24':'#fb923c'
@@ -805,15 +862,19 @@ export default function App() {
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
-                    {day.tempHigh != null && (
-                      <div style={{
-                        fontFamily: "'DM Mono', monospace",
-                        fontSize: 20,
-                        color: '#b91c1c'
-                      }}>
-                        {day.tempUnit ? `${day.tempHigh}°${day.tempUnit}` : `↑ ${day.tempHigh}°`}
-                      </div>
-                    )}
+                    {day.tempHigh != null && (() => {
+                      const titleText = String(day.title || day.period || '').toLowerCase();
+                      const isNight = titleText.includes('ponoči');
+                      return (
+                        <div style={{
+                          fontFamily: "'DM Mono', monospace",
+                          fontSize: 20,
+                          color: isNight ? '#1d4ed8' : '#b91c1c'
+                        }}>
+                          {day.tempUnit ? `${day.tempHigh}°${day.tempUnit}` : `↑ ${day.tempHigh}°`}
+                        </div>
+                      )
+                    })()}
 
                     {day.precipitation?.amount && (
                       <div style={{
@@ -847,8 +908,7 @@ export default function App() {
                 Napoved osvežena: {W.updated}
               </div>
             )}
-
-            <p style={{
+           <p style={{
               fontSize: 10,
               color: T.textDim,
               marginTop: 12,
@@ -856,6 +916,14 @@ export default function App() {
               padding: '0 4px'
             }}>
               Napoved WXSIM (hobi)
+
+            <div style={{fontSize:14,color:T.textDim,marginTop:10}}>
+                  Napoved vremenskih modelov ALADIN (vir: ARSO) in ICON-D2 (vir: dwd.de). <br/>
+                  Napoved modela ALADIN se osvežuje ob 6h, 12h, 18h in 24h, ICON-D2 pa vsake tri ure, začenši ob 4h.
+            </div>
+            <ForecastImageRow title="Aladin" urls={aladinImages} T={T} />
+            <ForecastImageRow title="ICON-D2" urls={iconImages} T={T} />
+
             </p>
 
           </div>
@@ -938,30 +1006,24 @@ export default function App() {
         {/* ━━ DONACIJA ━━ */}
         {tab==='donacija'&&(
           <div className="fade-up" style={{padding:'20px 15px 0'}}>
-            <Card T={T} style={{textAlign:'center',marginBottom:13}}>
-              <div style={{fontSize:34,marginBottom:11}}>☁️</div>
-              <div style={{fontSize:19,fontWeight:600,marginBottom:8,color:T.textPrimary}}>Podprite vremetolmin.si</div>
+            <Card T={T} style={{textAlign:'left',marginBottom:13}}>
+              <img src="https://www.vremetolmin.si/ikone/logotip.png" style={{maxHeight: 50}}/>
+              
               <div style={{fontSize:13,color:T.textMuted,lineHeight:1.7,maxWidth:270,margin:'0 auto'}}>
-                Brezplačna, neprofitna vremenska storitev za dolino Tolminke.
-              </div>
-              <div style={{display:'flex',justifyContent:'center',gap:8,flexWrap:'wrap',margin:'18px 0'}}>
-                {['€5','€10','€20','Drugo'].map((v,i)=>(
-                  <button key={v} onClick={e=>{document.querySelectorAll('.amt-btn').forEach(b=>{b.style.background='transparent';b.style.color=T.textPrimary});e.currentTarget.style.background=T.accent+'22';e.currentTarget.style.color=T.accent}}
-                    className="amt-btn" style={{padding:'9px 17px',borderRadius:10,border:`1px solid ${T.cardBorder}`,background:i===0?T.accent+'22':'transparent',color:i===0?T.accent:T.textPrimary,fontFamily:"'Outfit',sans-serif",fontSize:14,cursor:'pointer',transition:'all .15s'}}>
-                    {v}
-                  </button>
-                ))}
-              </div>
-              <a href="https://vremetolmin.si/i.html" target="_blank" rel="noopener noreferrer"
-                style={{display:'block',padding:13,background:T.accent,borderRadius:13,fontSize:15,fontWeight:600,color:'#fff'}}>
-                Donirajte na vremetolmin.si ↗
+                Neprofitna vremenska storitev za tolminsko kotlino. Vsi predstavljeni podatki so pridobljeni s hobi opremo in nimajo
+                uradne veljave. Enako velja za podatke s postaj v naši okolici. <br />Najbližja uradna vremenska postaja (ARSO) je v Volčah.
+              </div><br />
+              <a href="https://vremetolmin.si" target="_blank" rel="noopener noreferrer"
+                style={{textAlign:'center',display:'block',padding:13,background:T.accent,borderRadius:13,fontSize:15,fontWeight:600,color:'#fff'}}>
+                Več na vremetolmin.si ↗
               </a>
             </Card>
             {[
-              {icon:'🌡️',title:'Davis vremenska postaja',desc:'Senzorji za temperaturo, vlago, veter, dež, sonce, zrak.'},
-              {icon:'⚡',title:'Boltek detektor strel',desc:'Zaznavanje strel v realnem času za dolino Soče.'},
-              {icon:'📡',title:'Satelitski sprejemnik',desc:'Sprejem slik s satelitov METEOR M2-3 in M2-4.'},
-              {icon:'📍',title:'Več postaj v dolini',desc:'Podatki z več vremenskih postaj v naši okolici.'},
+              {icon:'🗂️',title:'Uporaba podatkov',desc:'Nadaljnja uporaba je dovoljena, vendar mora biti ob tem naveden vir: "www.vremetolmin.si" . Še več podrobnosti na https://www.vremetolmin.si/i.html'},
+              {icon:'✉️',title:'Kontakt',desc:'Elektronski naslov: pws.tolmin@gmail.com'},
+              {icon:'ⓕ',title:'Facebook',desc:'Facebook: facebook.com/vremetolmin'},
+              {icon:'☕',title:'Kava zame',desc:'Čeprav mi jutranja kava prija, bi dal kovanec v pujska za vzdrževanje postaj in spletnih strani.'},
+
             ].map(({icon,title,desc})=>(
               <Card key={title} T={T} style={{marginBottom:10,display:'flex',alignItems:'flex-start',gap:14}}>
                 <div style={{fontSize:22,flexShrink:0,marginTop:2}}>{icon}</div>
@@ -972,7 +1034,7 @@ export default function App() {
               </Card>
             ))}
             <p style={{fontSize:10,color:T.textDim,textAlign:'center',marginTop:14,lineHeight:1.7}}>
-              Podpira novagorica.eu<br/>
+              Spletno mesto vremetolmin.sizagotavlja novagorica.eu<br/>
             </p>
           </div>
         )}
