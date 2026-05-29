@@ -227,6 +227,27 @@ function mapConditionToIcon(condition) {
   return '🌤️';
 }
 
+function parseDailyData(text) {
+  if (!text) return [];
+  return text
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => {
+      const parts = line.split(';');
+      const hour = parseInt(parts[0], 10);
+      const temp = parseFloat(parts[1]?.replace(',', '.'));
+      const precip = parseFloat(parts[3]?.replace(',', '.'));
+      return {
+        hour: Number.isInteger(hour) ? hour : null,
+        hourLabel: Number.isInteger(hour) ? String(hour).padStart(2, '0') + ':00' : '—',
+        temp: Number.isFinite(temp) ? temp : null,
+        precip: Number.isFinite(precip) ? precip : 0,
+      };
+    })
+    .filter(item => item.hour != null);
+}
+
 function parseForecast(data) {
   const list = Array.isArray(data.forecast) ? data.forecast : [];
   return {
@@ -311,6 +332,18 @@ export default async function handler(req, res) {
       .then(data => {
         if (data) {
           forecastData = parseForecast(data);
+        }
+      })
+      .catch(() => {}),
+
+    fetch(`${BASE}/interaktivno/dailydata.txt`, { headers: HEADERS, signal: timer(6000) })
+      .then(r => r.ok ? r.text() : '')
+      .then(text => {
+        if (text) {
+          weatherData = {
+            ...(weatherData || {}),
+            dailyData: parseDailyData(text),
+          };
         }
       })
       .catch(() => {}),

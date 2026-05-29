@@ -7,52 +7,6 @@ async function fetchWeather() {
   return res.json()
 }
 
-// app/page.js  (Next.js App Router)
-
-/*  
-  const data = await getForecast();
-
-  const forecast = data.forecast || [];
-
-  return (
-    <main style={{ padding: 20 }}>
-      <h1>Weather Forecast</h1>
-
-      <table border="1" cellPadding="10">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Temperature</th>
-            <th>Precipitation</th>
-            <th>Text</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {forecast.map((item, index) => (
-            <tr key={index}>
-              <td>{item.title}</td>
-
-              <td>
-                {item.temperature?.value}
-                °{item.temperature?.unit}
-              </td>
-
-              <td>
-                {item.precipitation?.amount || "-"}
-              </td>
-
-              <td>{item.text}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </main>
-  );
-}
-*/
-
-
 // ── Forecast translation EN → SL ──────────────────────────────────────────────
 function translateForecast(text) {
   if (!text) return null
@@ -198,7 +152,7 @@ const THEMES = {
     accent:'#6366f1',
     textPrimary:'#111827',
     textMuted:'#374151',
-    textDim:'#4b5563',
+    textDim:'#111316',
     heroTemp:'#111827',
     heroLow:'#4338ca',
     heroHigh:'#b91c1c',
@@ -416,6 +370,72 @@ function LiveImage({src,alt,imgStyle,fallbackText,T}) {
   return <img key={key} src={`${src}?t=${key}`} alt={alt} style={{display:'block',width:'100%',...imgStyle}} onError={()=>setErr(true)}/>
 }
 
+function DailyTrendChart({data,T}) {
+  if (!Array.isArray(data) || data.length === 0) return null
+
+  const temps = data.map(d => d.temp).filter(v => v != null)
+  const maxPrecip = Math.max(...data.map(d => d.precip ?? 0), 0)
+  const minTemp = temps.length ? Math.min(...temps) : 0
+  const maxTemp = temps.length ? Math.max(...temps) : 0
+  const chartWidth = 340
+  const chartHeight = 140
+  const leftMargin = 14
+  const xStep = 13
+  const availableHeight = chartHeight - 32
+  const tempRange = maxTemp !== minTemp ? maxTemp - minTemp : 1
+
+  const tempPoints = data.map((d, i) => {
+    const x = leftMargin + i * xStep
+    const y = chartHeight - 22 - ((d.temp ?? minTemp) - minTemp) / tempRange * availableHeight
+    return `${x},${y}`
+  }).join(' ')
+
+  return (
+    <div style={{overflowX:'auto',paddingBottom:6}}>
+      <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} style={{width:'100%',height:chartHeight}}>
+        <rect x="0" y="0" width={chartWidth} height={chartHeight} fill="none"/>
+        {data.map((d, i) => {
+          const x = leftMargin + i * xStep - 5
+          const barHeight = maxPrecip ? Math.round((d.precip ?? 0) / maxPrecip * (availableHeight - 12)) : 0
+          return (
+            <rect
+              key={i}
+              x={x}
+              y={chartHeight - 16 - barHeight}
+              width={10}
+              height={barHeight}
+              rx={2}
+              fill="rgba(59,130,246,0.55)"
+            />
+          )
+        })}
+        <polyline
+          points={tempPoints}
+          fill="none"
+          stroke={T.accent}
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+        {data.map((d, i) => {
+          const x = leftMargin + i * xStep
+          const y = chartHeight - 22 - ((d.temp ?? minTemp) - minTemp) / tempRange * availableHeight
+          return <circle key={i} cx={x} cy={y} r={2.2} fill={T.accent} />
+        })}
+        {data.map((d, i) => (i % 6 === 0 || i === data.length - 1) ? (
+          <text key={i} x={leftMargin + i * xStep} y={chartHeight - 2} textAnchor="middle" fontSize="9" fill={T.textDim} fontFamily="'DM Mono',monospace">
+            {d.hourLabel}
+          </text>
+        ) : null)}
+      </svg>
+      <div style={{display:'flex',justifyContent:'space-between',gap:10,marginTop:8,fontSize:11,color:T.textDim,fontFamily:"'DM Mono',monospace"}}>
+        <span>Temp {minTemp.toFixed(0)}–{maxTemp.toFixed(0)}°C</span>
+        <span>Padavine {maxPrecip.toFixed(1)} mm</span>
+      </div>
+    </div>
+  )
+}
+
 // safe display helpers
 function d(v)  { return v != null ? v : '—' }
 function nn(v) { return v != null ? Math.max(0, v) : 0 }  // non-null, non-negative
@@ -483,6 +503,7 @@ export default function App() {
   const nearby    = W.nearbyStations ?? []
   const arso      = W.arsoStations   ?? []
   const forecast  = W.forecast       ?? []
+  const dailyData = W.dailyData     ?? []
 
   const tempNum = parseFloat(temp)
   const tempCol = isNaN(tempNum)?T.heroTemp:tempNum<0?'#93c5fd':tempNum<10?'#67e8f9':tempNum<20?T.heroTemp:tempNum<28?'#fbbf24':'#fb923c'
@@ -643,6 +664,12 @@ export default function App() {
               <div style={{marginTop:6,fontSize:10,color:T.textDim,textAlign:'right'}}>Vir podatkov: ARSO</div>
             </Card>
             </div>
+            {dailyData.length > 0 && (
+              <Card T={T} style={{marginBottom:11}}>
+                <CardTitle icon={<Ico.Drop/>} right='Zadnjih 24 ur' T={T}>Temperatura & padavine</CardTitle>
+                <DailyTrendChart data={dailyData} T={T}/>
+              </Card>
+            )}
 
             <Card T={T} style={{marginBottom:11}}>
               <CardTitle icon={<Ico.Sun/>} T={T}>Sonce in luna</CardTitle>
