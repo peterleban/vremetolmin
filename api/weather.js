@@ -248,6 +248,25 @@ function parseDailyData(text) {
     .filter(item => item.hour != null);
 }
 
+function parsePmSeries(text) {
+  if (!text) return [];
+  return text
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => {
+      const parts = line.split(',');
+      const time = parts[0] ?? '';
+      const value = parseFloat((parts[2] ?? '').replace(',', '.'));
+      return {
+        time,
+        label: time.slice(11, 16),
+        value: Number.isFinite(value) ? value : null,
+      };
+    })
+    .filter(point => point.value != null);
+}
+
 function parseForecast(data) {
   const list = Array.isArray(data.forecast) ? data.forecast : [];
   return {
@@ -343,6 +362,36 @@ export default async function handler(req, res) {
           weatherData = {
             ...(weatherData || {}),
             dailyData: parseDailyData(text),
+          };
+        }
+      })
+      .catch(() => {}),
+
+    fetch(`${BASE}/data/zrak/tolmin/pm_plot_doma.txt`, { headers: HEADERS, signal: timer(6000) })
+      .then(r => r.ok ? r.text() : '')
+      .then(text => {
+        if (text) {
+          weatherData = {
+            ...(weatherData || {}),
+            pmSeries: {
+              ...(weatherData?.pmSeries || {}),
+              home: parsePmSeries(text),
+            },
+          };
+        }
+      })
+      .catch(() => {}),
+
+    fetch(`${BASE}/data/zrak/tolmin/pm_plot_mesto.txt`, { headers: HEADERS, signal: timer(6000) })
+      .then(r => r.ok ? r.text() : '')
+      .then(text => {
+        if (text) {
+          weatherData = {
+            ...(weatherData || {}),
+            pmSeries: {
+              ...(weatherData?.pmSeries || {}),
+              city: parsePmSeries(text),
+            },
           };
         }
       })

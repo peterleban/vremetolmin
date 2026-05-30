@@ -455,24 +455,6 @@ function DailyTrendChart({data,T}) {
   )
 }
 
-function parsePmSeries(text) {
-  return text
-    .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean)
-    .map(line => {
-      const parts = line.split(',')
-      const time = parts[0] ?? ''
-      const value = parseFloat(parts[2] ?? '')
-      return {
-        time,
-        label: time.slice(11, 16),
-        value: Number.isFinite(value) ? value : null,
-      }
-    })
-    .filter(point => point.value != null)
-}
-
 function PmTrendChart({homeData, cityData, T}) {
   if (!homeData.length || !cityData.length) return null
 
@@ -595,8 +577,6 @@ export default function App() {
   const [error,setError]     = useState(null)
   const [debug,setDebug]     = useState(null)
   const [showDebug,setShowDebug] = useState(false)
-  const [pmSeries,setPmSeries] = useState({ home: [], city: [] })
-  const [pmError,setPmError] = useState(false)
 
   const load = async (isRefresh=false) => {
     if(isRefresh) setRefreshing(true); else setLoading(true)
@@ -625,28 +605,6 @@ export default function App() {
 
   }, [])
 
-  useEffect(() => {
-    const loadPm = async () => {
-      try {
-        const responses = await Promise.all([
-          fetch('https://www.vremetolmin.si/data/zrak/tolmin/pm_plot_doma.txt'),
-          fetch('https://www.vremetolmin.si/data/zrak/tolmin/pm_plot_mesto.txt'),
-        ])
-        const texts = await Promise.all(responses.map(r => {
-          if (!r.ok) throw new Error('PM fetch failed')
-          return r.text()
-        }))
-        setPmSeries({
-          home: parsePmSeries(texts[0]),
-          city: parsePmSeries(texts[1]),
-        })
-      } catch (err) {
-        setPmError(true)
-      }
-    }
-    loadPm()
-  }, [])
-
   const T = THEMES[condition]||THEMES.sunny
 
   // Pull values — all from tag_main.html now
@@ -667,6 +625,7 @@ export default function App() {
   const solar     = W.solar      != null ? Math.max(0,W.solar) : null
   const dewPoint  = W.dewPoint   ?? '—'
   const airQuality = getAirQualityStatus(W.pm10)
+  const pmSeries  = W.pmSeries   ?? { home: [], city: [] }
   const windMaxToday = W.windMaxToday ?? '—'
   const nearby    = W.nearbyStations ?? []
   const arso      = W.arsoStations   ?? []
@@ -915,7 +874,7 @@ export default function App() {
                 <CardTitle icon={<Ico.Leaf/>} right="PM10" T={T}>PM10 doma / mesto</CardTitle>
                 <PmTrendChart homeData={pmSeries.home} cityData={pmSeries.city} T={T}/>
               </Card>
-            ) : pmError ? (
+            ) : (!pmSeries.home.length || !pmSeries.city.length) ? (
               <Card T={T} style={{marginBottom:11}}>
                 <CardTitle icon={<Ico.Leaf/>} T={T}>PM10</CardTitle>
                 <div style={{fontSize:12,color:T.textDim}}>PM10 podatki trenutno niso na voljo.</div>
