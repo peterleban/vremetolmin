@@ -455,6 +455,99 @@ function DailyTrendChart({data,T}) {
   )
 }
 
+function parsePmSeries(text) {
+  return text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+    .map(line => {
+      const parts = line.split(',')
+      const time = parts[0] ?? ''
+      const value = parseFloat(parts[2] ?? '')
+      return {
+        time,
+        label: time.slice(11, 16),
+        value: Number.isFinite(value) ? value : null,
+      }
+    })
+    .filter(point => point.value != null)
+}
+
+function PmTrendChart({homeData, cityData, T}) {
+  if (!homeData.length || !cityData.length) return null
+
+  const count = Math.max(homeData.length, cityData.length)
+  const chartWidth = Math.max(340, 26 + 13 * (count - 1))
+  const chartHeight = 150
+  const leftMargin = 16
+  const xStep = 13
+  const allValues = [...homeData.map(d => d.value), ...cityData.map(d => d.value)]
+  const maxValue = Math.max(...allValues, 1)
+  const minValue = Math.min(...allValues, 0)
+  const valueRange = maxValue !== minValue ? maxValue - minValue : 1
+  const homeMin = Math.min(...homeData.map(d => d.value))
+  const homeMax = Math.max(...homeData.map(d => d.value))
+  const cityMin = Math.min(...cityData.map(d => d.value))
+  const cityMax = Math.max(...cityData.map(d => d.value))
+  const labels = homeData.length >= cityData.length ? homeData : cityData
+  const step = Math.max(1, Math.ceil(labels.length / 8))
+
+  const pointY = value => chartHeight - 18 - ((value - minValue) / valueRange) * (chartHeight - 38)
+  const homePoints = homeData.map((d, i) => `${leftMargin + i * xStep},${pointY(d.value)}`).join(' ')
+  const cityPoints = cityData.map((d, i) => `${leftMargin + i * xStep},${pointY(d.value)}`).join(' ')
+
+  return (
+    <div style={{overflowX:'auto',paddingBottom:6}}>
+      <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} style={{width:'100%',height:chartHeight}}>
+        <rect x="0" y="0" width={chartWidth} height={chartHeight} fill="none"/>
+        {[0,1,2].map(i => (
+          <line key={i} x1={leftMargin} x2={chartWidth - 8} y1={16 + i * 40} y2={16 + i * 40} stroke="rgba(255,255,255,0.08)" strokeWidth="1"/>
+        ))}
+        <polyline
+          points={homePoints}
+          fill="none"
+          stroke="#22c55e"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+        <polyline
+          points={cityPoints}
+          fill="none"
+          stroke="#3b82f6"
+          strokeWidth="2"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          strokeDasharray="4 3"
+        />
+        {homeData.map((d, i) => {
+          const x = leftMargin + i * xStep
+          const y = pointY(d.value)
+          return <circle key={`home-${i}`} cx={x} cy={y} r={2.8} fill="#22c55e" />
+        })}
+        {cityData.map((d, i) => {
+          const x = leftMargin + i * xStep
+          const y = pointY(d.value)
+          return <rect key={`city-${i}`} x={x - 2.5} y={y - 2.5} width={5} height={5} rx={1.5} fill="#3b82f6" />
+        })}
+        {labels.map((d, i) => (i % step === 0 || i === labels.length - 1) ? (
+          <text key={i} x={leftMargin + i * xStep} y={chartHeight - 2} textAnchor="middle" fontSize="9" fill={T.textDim} fontFamily="'DM Mono',monospace">
+            {d.label}
+          </text>
+        ) : null)}
+      </svg>
+      <div style={{display:'flex',justifyContent:'space-between',gap:10,marginTop:8,fontSize:11,color:T.textDim,fontFamily:"'DM Mono',monospace"}}>
+        <span style={{display:'inline-flex',alignItems:'center',gap:6}}><span style={{width:10,height:10,background:'#22c55e',borderRadius:2}}/>Doma</span>
+        <span style={{display:'inline-flex',alignItems:'center',gap:6}}><span style={{width:10,height:10,background:'#3b82f6',borderRadius:2}}/>Mesto</span>
+      </div>
+      <div style={{display:'flex',justifyContent:'space-between',gap:10,marginTop:6,fontSize:11,color:T.textDim}}>
+        <span>Doma {homeMin.toFixed(1)}–{homeMax.toFixed(1)} µg/m³</span>
+        <span>Mesto {cityMin.toFixed(1)}–{cityMax.toFixed(1)} µg/m³</span>
+      </div>
+    </div>
+  )
+}
+
 function ForecastImageRow({title, urls, T}) {
   if (!Array.isArray(urls) || urls.length === 0) return null
   return (
@@ -482,6 +575,14 @@ function ForecastImageRow({title, urls, T}) {
 function d(v)  { return v != null ? v : '—' }
 function nn(v) { return v != null ? Math.max(0, v) : 0 }  // non-null, non-negative
 function dn(v) { return v != null ? Math.max(0, v) : '—' } // display non-negative or dash
+function getAirQualityStatus(pm10) {
+  const value = pm10 != null ? Number(pm10) : NaN
+  if (!Number.isFinite(value)) return 'Ni podatkov'
+  if (value < 40) return 'dobra'
+  if (value < 75) return 'mejna'
+  if (value < 100) return 'slaba'
+  return 'zelo slaba'
+}
 
 // ── App ────────────────────────────────────────────────────────────────────────
 export default function App() {
@@ -494,6 +595,8 @@ export default function App() {
   const [error,setError]     = useState(null)
   const [debug,setDebug]     = useState(null)
   const [showDebug,setShowDebug] = useState(false)
+  const [pmSeries,setPmSeries] = useState({ home: [], city: [] })
+  const [pmError,setPmError] = useState(false)
 
   const load = async (isRefresh=false) => {
     if(isRefresh) setRefreshing(true); else setLoading(true)
@@ -522,6 +625,28 @@ export default function App() {
 
   }, [])
 
+  useEffect(() => {
+    const loadPm = async () => {
+      try {
+        const responses = await Promise.all([
+          fetch('https://www.vremetolmin.si/data/zrak/tolmin/pm_plot_doma.txt'),
+          fetch('https://www.vremetolmin.si/data/zrak/tolmin/pm_plot_mesto.txt'),
+        ])
+        const texts = await Promise.all(responses.map(r => {
+          if (!r.ok) throw new Error('PM fetch failed')
+          return r.text()
+        }))
+        setPmSeries({
+          home: parsePmSeries(texts[0]),
+          city: parsePmSeries(texts[1]),
+        })
+      } catch (err) {
+        setPmError(true)
+      }
+    }
+    loadPm()
+  }, [])
+
   const T = THEMES[condition]||THEMES.sunny
 
   // Pull values — all from tag_main.html now
@@ -541,6 +666,7 @@ export default function App() {
   const uv        = W.uv         != null ? Math.max(0,W.uv) : null
   const solar     = W.solar      != null ? Math.max(0,W.solar) : null
   const dewPoint  = W.dewPoint   ?? '—'
+  const airQuality = getAirQualityStatus(W.pm10)
   const windMaxToday = W.windMaxToday ?? '—'
   const nearby    = W.nearbyStations ?? []
   const arso      = W.arsoStations   ?? []
@@ -576,7 +702,7 @@ export default function App() {
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
         .fade-up{animation:fadeUp .22s cubic-bezier(0.22,1,0.36,1) forwards;will-change:transform,opacity}
-        .scroll-area{-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;scroll-behavior:auto;will-change:scroll-position}
+        .scroll-area{-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior-y:contain;scroll-behavior:auto;will-change:scroll-position}
         .tab-scroll::-webkit-scrollbar{display:none}.tab-scroll{scrollbar-width:none}
         a{color:inherit;text-decoration:none}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:2px}
@@ -624,7 +750,7 @@ export default function App() {
       </div>}
 
       {/* ── Content ── */}
-      <div className="scroll-area" style={{flex:1,overflowY:'auto',position:'relative',zIndex:10,padding:'0 0 76px'}}>
+      <div className="scroll-area" style={{flex:1,overflowY:'auto',position:'relative',zIndex:10,padding:'0 0 76px',WebkitOverflowScrolling:'touch',touchAction:'pan-y',overscrollBehaviorY:'contain'}}>
 
         {/* ━━ ZDAJ ━━ */}
         {tab==='zdaj'&&(
@@ -779,10 +905,22 @@ export default function App() {
               <CardTitle icon={<Ico.Leaf/>} T={T}>Zrak</CardTitle>
               <Row label="PM10 (zdaj)"      value={W.pm10!=null?Math.max(0,W.pm10):'—'} sub={W.pm10!=null?'µg/m³':''} T={T}/>
               <Row label="PM2.5 (zdaj)"     value={W.pm2p5!=null?Math.max(0,W.pm2p5):'—'} sub={W.pm2p5!=null?'µg/m³':''} T={T}/>
-              <div style={{marginTop:10,padding:'8px 10px',background:'rgba(5,150,105,0.1)',borderRadius:10,border:'1px solid rgba(5,150,105,0.2)',fontSize:12,color:'#065f46',textAlign:'center'}}>
-                Kakovost zraka
+              <div style={{marginTop:10,padding:'8px 10px',borderRadius:10,fontSize:12,textAlign:'center',background: airQuality==='dobra' ? 'rgba(16,185,129,0.12)' : airQuality==='mejna' ? 'rgba(234,179,8,0.12)' : airQuality==='slaba' ? 'rgba(249,115,22,0.12)' : airQuality==='zelo slaba' ? 'rgba(185,28,28,0.12)' : 'rgba(148,163,184,0.1)',border:`1px solid ${airQuality==='dobra' ? 'rgba(16,185,129,0.24)' : airQuality==='mejna' ? 'rgba(234,179,8,0.24)' : airQuality==='slaba' ? 'rgba(249,115,22,0.24)' : airQuality==='zelo slaba' ? 'rgba(185,28,28,0.24)' : 'rgba(148,163,184,0.2)'}`,color: airQuality==='dobra' ? '#047857' : airQuality==='mejna' ? '#92400e' : airQuality==='slaba' ? '#9a3412' : airQuality==='zelo slaba' ? '#991b1b' : '#475569'}}>
+                Kakovost zraka: {airQuality}
               </div>
             </Card>
+
+            {(pmSeries.home.length > 0 && pmSeries.city.length > 0) ? (
+              <Card T={T} style={{marginBottom:11}}>
+                <CardTitle icon={<Ico.Leaf/>} right="PM10" T={T}>PM10 doma / mesto</CardTitle>
+                <PmTrendChart homeData={pmSeries.home} cityData={pmSeries.city} T={T}/>
+              </Card>
+            ) : pmError ? (
+              <Card T={T} style={{marginBottom:11}}>
+                <CardTitle icon={<Ico.Leaf/>} T={T}>PM10</CardTitle>
+                <div style={{fontSize:12,color:T.textDim}}>PM10 podatki trenutno niso na voljo.</div>
+              </Card>
+            ) : null}
 
             <Card T={T} style={{marginBottom:11}}>
               <CardTitle icon={<Ico.Leaf/>} T={T}>Zemlja</CardTitle>
