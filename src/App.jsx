@@ -727,7 +727,6 @@ export default function App() {
               <div style={{display:'flex',gap:14,marginTop:6,flexWrap:'wrap'}}>
                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroLow,fontWeight:600,textShadow:'0 1px 1px rgba(0,0,0,0.3)'}}>↓ {tempMin}°</span>
                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroHigh,fontWeight:600,textShadow:'0 1px 1px rgba(0,0,0,0.3)'}}>↑ {tempMax}°</span>
-                {// {W.conditionSL&&<span style={{fontSize:12,color:T.accent,fontWeight:500}}>{W.conditionSL}</span>} //}
               </div>
             </div>
 
