@@ -661,7 +661,7 @@ export default function App() {
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
         .fade-up{animation:fadeUp .22s cubic-bezier(0.22,1,0.36,1) forwards;will-change:transform,opacity}
-        .scroll-area{-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior-y:contain;scroll-behavior:auto;will-change:scroll-position}
+        .scroll-area{-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scroll-behavior:auto;will-change:scroll-position;-webkit-touch-callout:none}
         .tab-scroll::-webkit-scrollbar{display:none}.tab-scroll{scrollbar-width:none}
         a{color:inherit;text-decoration:none}
         ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:2px}
@@ -709,7 +709,7 @@ export default function App() {
       </div>}
 
       {/* ── Content ── */}
-      <div className="scroll-area" style={{flex:1,overflowY:'auto',position:'relative',zIndex:10,padding:'0 0 76px',WebkitOverflowScrolling:'touch',touchAction:'pan-y',overscrollBehaviorY:'contain'}}>
+      <div className="scroll-area" style={{flex:1,overflowY:'auto',overflowX:'hidden',position:'relative',zIndex:10,padding:'0 0 76px',WebkitOverflowScrolling:'touch',overscrollBehavior:'contain',width:'100%',height:'100%'}}>
 
         {/* ━━ ZDAJ ━━ */}
         {tab==='zdaj'&&(
