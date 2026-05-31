@@ -523,8 +523,8 @@ function PmTrendChart({homeData, cityData, T}) {
         <span style={{display:'inline-flex',alignItems:'center',gap:6}}><span style={{width:10,height:10,background:'#3b82f6',borderRadius:2}}/>Mesto</span>
       </div>
       <div style={{display:'flex',justifyContent:'space-between',gap:10,marginTop:6,fontSize:11,color:T.textDim}}>
-        <span>Doma {homeMin.toFixed(1)}–{homeMax.toFixed(1)} µg/m³</span>
-        <span>Mesto {cityMin.toFixed(1)}–{cityMax.toFixed(1)} µg/m³</span>
+        <span>pri Tolminki {homeMin.toFixed(1)}–{homeMax.toFixed(1)} µg/m³</span>
+        <span>pri parku {cityMin.toFixed(1)}–{cityMax.toFixed(1)} µg/m³</span>
       </div>
     </div>
   )
@@ -727,7 +727,7 @@ export default function App() {
               <div style={{display:'flex',gap:14,marginTop:6,flexWrap:'wrap'}}>
                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroLow,fontWeight:600,textShadow:'0 1px 1px rgba(0,0,0,0.3)'}}>↓ {tempMin}°</span>
                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroHigh,fontWeight:600,textShadow:'0 1px 1px rgba(0,0,0,0.3)'}}>↑ {tempMax}°</span>
-                {W.conditionSL&&<span style={{fontSize:12,color:T.accent,fontWeight:500}}>{W.conditionSL}</span>}
+                {// {W.conditionSL&&<span style={{fontSize:12,color:T.accent,fontWeight:500}}>{W.conditionSL}</span>} //}
               </div>
             </div>
 
@@ -871,7 +871,7 @@ export default function App() {
 
             {(pmSeries.home.length > 0 && pmSeries.city.length > 0) ? (
               <Card T={T} style={{marginBottom:11}}>
-                <CardTitle icon={<Ico.Leaf/>} right="PM10" T={T}>PM10 doma / mesto</CardTitle>
+                <CardTitle icon={<Ico.Leaf/>} right="PM10" T={T}>Urne koncentracije</CardTitle>
                 <PmTrendChart homeData={pmSeries.home} cityData={pmSeries.city} T={T}/>
               </Card>
             ) : (!pmSeries.home.length || !pmSeries.city.length) ? (
