@@ -393,7 +393,8 @@ function DailyTrendChart({data,T}) {
   if (!Array.isArray(data) || data.length === 0) return null
 
   const temps = data.map(d => d.temp).filter(v => v != null)
-  const maxPrecip = Math.max(...data.map(d => d.precip ?? 0), 0)
+  const totalPrecip = data.reduce((sum, d) => sum + (d.precip ?? 0), 0)
+  const maxPrecip = data.length ? Math.max(...data.map(d => d.precip ?? 0), 0) : 0
   const minTemp = temps.length ? Math.min(...temps) : 0
   const maxTemp = temps.length ? Math.max(...temps) : 0
   const chartWidth = 340
@@ -449,7 +450,7 @@ function DailyTrendChart({data,T}) {
       </svg>
       <div style={{display:'flex',justifyContent:'space-between',gap:10,marginTop:8,fontSize:11,color:T.textDim,fontFamily:"'DM Mono',monospace"}}>
         <span>Temp {minTemp.toFixed(0)}–{maxTemp.toFixed(0)}°C</span>
-        <span>Padavine {maxPrecip.toFixed(1)} mm</span>
+        <span>Padavine {totalPrecip.toFixed(1)} mm</span>
       </div>
     </div>
   )
@@ -525,6 +526,119 @@ function PmTrendChart({homeData, cityData, T}) {
       <div style={{display:'flex',justifyContent:'space-between',gap:10,marginTop:6,fontSize:11,color:T.textDim}}>
         <span>pri Tolminki {homeMin.toFixed(1)}–{homeMax.toFixed(1)} µg/m³</span>
         <span>pri parku {cityMin.toFixed(1)}–{cityMax.toFixed(1)} µg/m³</span>
+      </div>
+    </div>
+  )
+}
+
+function SunMoonChart({W, T, width=340, height=84}) {
+  const parseHM = (s) => {
+    if (!s) return null
+    const m = String(s).match(/(\d{1,2}):(\d{2})/)
+    if (!m) return null
+    return Number(m[1]) + Number(m[2]) / 60
+  }
+
+  const riseSun = parseHM(W.sunrise)
+  const setSun  = parseHM(W.sunset)
+  const riseMoon = parseHM(W.moonrise)
+  const setMoon  = parseHM(W.moonset)
+
+  const now = new Date()
+  const nowH = now.getHours() + now.getMinutes() / 60
+
+  const mapX = h => (h % 24) / 24 * width
+  const top = 8
+  const availH = height - top - 12
+
+  const makeSegments = (r, s) => {
+    if (r == null || s == null) return []
+    let R = r, S = s
+    if (S <= R) S = S + 24
+    const segs = []
+    if (S <= 24) segs.push([R, S])
+    else {
+      segs.push([R, 24])
+      segs.push([0, S - 24])
+    }
+    return segs
+  }
+
+  const buildPath = (r, s) => {
+    const segs = makeSegments(r, s)
+    if (!segs.length) return null
+    const parts = segs.map(([a, b]) => {
+      const pts = []
+      const steps = Math.max(6, Math.round((b - a) * 3))
+      for (let i=0;i<=steps;i++) {
+        const t = a + (b - a) * (i / steps)
+        const frac = (t - a) / (b - a)
+        const yv = Math.sin(Math.PI * frac) // 0..1
+        const x = mapX(t)
+        const y = top + (1 - yv) * availH
+        pts.push(`${x.toFixed(1)},${y.toFixed(1)}`)
+      }
+      return `M ${pts.join(' L ')}`
+    })
+    return parts.join(' ')
+  }
+
+  const sunPath = buildPath(riseSun, setSun)
+  const moonPath = buildPath(riseMoon, setMoon)
+
+  const isBetween = (r, s, t) => {
+    if (r == null || s == null) return false
+    let R = r, S = s, T = t
+    if (S <= R) S += 24
+    if (T < R) T += 24
+    return T >= R && T <= S
+  }
+
+  const sunOn = isBetween(riseSun, setSun, nowH)
+  const moonOn = isBetween(riseMoon, setMoon, nowH)
+
+  const pointFor = (r, s, t) => {
+    if (!isBetween(r, s, t)) return null
+    let R = r, S = s, T = t
+    if (S <= R) S += 24
+    if (T < R) T += 24
+    const frac = (T - R) / (S - R)
+    const yv = Math.sin(Math.PI * frac)
+    const x = mapX(T)
+    const y = top + (1 - yv) * availH
+    return { x, y }
+  }
+
+  const sunPt = pointFor(riseSun, setSun, nowH)
+  const moonPt = pointFor(riseMoon, setMoon, nowH)
+
+  return (
+    <div style={{marginTop:8}}>
+      <svg viewBox={`0 0 ${width} ${height}`} style={{width:'100%',height:height}}>
+        <rect x={0} y={0} width={width} height={height} fill="none"/>
+        {/* hour ticks */}
+        {[0,6,12,18,24].map(h=> (
+          <g key={h} transform={`translate(${mapX(h)},0)`}>
+            <line x1={0} x2={0} y1={height-18} y2={height-12} stroke="rgba(255,255,255,0.06)" strokeWidth={1}/>
+            <text x={0} y={height-2} textAnchor="middle" fontSize="9" fill={T.textDim} fontFamily="'DM Mono',monospace">{h}</text>
+          </g>
+        ))}
+
+        {/* moon path */}
+        {moonPath && <path d={moonPath} fill="none" stroke="rgba(148,163,184,0.32)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
+        {/* sun path */}
+        {sunPath && <path d={sunPath} fill="none" stroke={T.accent} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" opacity={0.95}/>}
+
+        {/* current icons */}
+        {sunPt && <g><circle cx={sunPt.x} cy={sunPt.y} r={6} fill={T.accent} stroke={T.cardBorder} strokeWidth={1.2}/><text x={sunPt.x} y={sunPt.y+4} textAnchor="middle" fontSize={10}>{'☀️'}</text></g>}
+        {moonPt && <g><circle cx={moonPt.x} cy={moonPt.y} r={6} fill="rgba(148,163,184,0.9)" stroke={T.cardBorder} strokeWidth={1.2}/><text x={moonPt.x} y={moonPt.y+4} textAnchor="middle" fontSize={10}>{'🌙'}</text></g>}
+      </svg>
+      <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:11,color:T.textDim,fontFamily:"'DM Mono',monospace"}}>
+        <span>0h</span>
+        <span>6h</span>
+        <span>12h</span>
+        <span>18h</span>
+        <span style={{marginLeft:'auto'}}>24h</span>
       </div>
     </div>
   )
@@ -809,6 +923,7 @@ export default function App() {
               <Card T={T} style={{marginBottom:11}}>
                 <CardTitle icon={<Ico.Drop/>} right='Zadnjih 24 ur' T={T}>Temperatura & padavine</CardTitle>
                 <DailyTrendChart data={dailyData} T={T}/>
+                <SunMoonChart W={W} T={T} />
               </Card>
             )}
 
@@ -908,7 +1023,7 @@ export default function App() {
               <Row label="Zadnjo uro"              value={W.boltek1h != null ? W.boltek1h : '—'} T={T}/>
               <Row label="Danes skupno"            value={W.boltektoday != null ? W.boltektoday : '—'} T={T}/>
               <Row label="Zadnja"                  value={W.bolteklast != null ? W.bolteklast : '—'} T={T}/>
-              <Row label="Zadnja (smer, razdalja)" value={`${W.bolteklastdir || '—'} ${W.bolteklastbear || ''}`.trim()} T={T}/>
+              <Row label="Zadnja (smer, razdalja)" value={`${W.bolteklastdir || '—'}° / ${W.bolteklastbear || ''} km`.trim()}  T={T}/>
             </Card>
 
             <div className="fade-up" style={{padding:'20px 15px 0'}}>
@@ -1013,10 +1128,12 @@ export default function App() {
             }}>
               Napoved WXSIM (hobi)
 
-            <div style={{fontSize:14,color:T.textDim,marginTop:10}}>
-                  Napoved vremenskih modelov ALADIN (vir: ARSO) in ICON-D2 (vir: dwd.de). <br/>
-                  Napoved modela ALADIN se osvežuje ob 6h, 12h, 18h in 24h, ICON-D2 pa vsake tri ure, začenši ob 4h.
-            </div>
+            <Card T={T} style={{marginBottom:11}}>
+              <CardTitle T={T}>Vremenski modeli</CardTitle>
+              <Row label="ALADIN (ob 6h, 12h, 18h in 24h)"    value={'vir: ARSO'} T={T}/>
+              <Row label="ICON-D2 (ob 4h, 7h, 10h, ...)"    value={'vir: dwd.de'} T={T}/>
+            </Card>
+
             <ForecastImageRow title="Aladin" urls={aladinImages} T={T} />
             <ForecastImageRow title="ICON-D2" urls={iconImages} T={T} />
 
