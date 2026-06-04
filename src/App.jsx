@@ -547,7 +547,10 @@ function SunMoonChart({W, T, width=340, height=84}) {
   const now = new Date()
   const nowH = now.getHours() + now.getMinutes() / 60
 
-  const mapX = h => (h % 24) / 24 * width
+  const mapX = h => {
+    const hh = h % 24
+    return (hh === 0 && h > 0 ? width : (hh / 24) * width)
+  }
   const top = 8
   const availH = height - top - 12
 
@@ -620,9 +623,10 @@ function SunMoonChart({W, T, width=340, height=84}) {
         {[0,6,12,18,24].map(h=> (
           <g key={h} transform={`translate(${mapX(h)},0)`}>
             <line x1={0} x2={0} y1={height-18} y2={height-12} stroke="rgba(255,255,255,0.06)" strokeWidth={1}/>
-            <text x={0} y={height-2} textAnchor="middle" fontSize="9" fill={T.textDim} fontFamily="'DM Mono',monospace">{h}</text>
+            <text x={0} y={height-2} textAnchor="middle" fontSize="9" fill={T.textDim} fontFamily="'DM Mono',monospace">{h === 24 ? '24/0' : h}</text>
           </g>
         ))}
+        <line x1={width} x2={width} y1={top} y2={height-18} stroke="rgba(255,255,255,0.08)" strokeWidth={1} strokeDasharray="4 3" />
 
         {/* moon path */}
         {moonPath && <path d={moonPath} fill="none" stroke="rgba(148,163,184,0.32)" strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
@@ -634,11 +638,6 @@ function SunMoonChart({W, T, width=340, height=84}) {
         {moonPt && <g><circle cx={moonPt.x} cy={moonPt.y} r={6} fill="rgba(148,163,184,0.9)" stroke={T.cardBorder} strokeWidth={1.2}/><text x={moonPt.x} y={moonPt.y+4} textAnchor="middle" fontSize={10}>{'🌙'}</text></g>}
       </svg>
       <div style={{display:'flex',justifyContent:'space-between',marginTop:6,fontSize:11,color:T.textDim,fontFamily:"'DM Mono',monospace"}}>
-        <span>0h</span>
-        <span>6h</span>
-        <span>12h</span>
-        <span>18h</span>
-        <span style={{marginLeft:'auto'}}>24h</span>
       </div>
     </div>
   )
@@ -923,7 +922,6 @@ export default function App() {
               <Card T={T} style={{marginBottom:11}}>
                 <CardTitle icon={<Ico.Drop/>} right='Zadnjih 24 ur' T={T}>Temperatura & padavine</CardTitle>
                 <DailyTrendChart data={dailyData} T={T}/>
-                <SunMoonChart W={W} T={T} />
               </Card>
             )}
 
@@ -935,7 +933,9 @@ export default function App() {
               <Row label="Lunin vzhod"     value={d(W.moonrise)} T={T}/>
               <Row label="Lunin zahod"     value={d(W.moonset)} T={T}/>
               <Row label="Lunina faza"     value={d(W.moonPhase)} T={T}/>
+              <SunMoonChart W={W} T={T} />
             </Card>
+
           </div>
         )}
 
