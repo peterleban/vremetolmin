@@ -84,7 +84,7 @@ function parseTagMain(text) {
   return {
     date:             cleanWD(f[0]),
     time:             cleanWD(f[1]),
-    conditionSL:      cleanWD(f[87]),
+    conditionSL:      cleanWD(f[2]),
     temp:             parseWD(f[3]),
     humidity:         parseI(f[4]),
     dewPoint:         parseWD(f[5]),
