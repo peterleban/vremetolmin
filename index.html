@@ -11,6 +11,12 @@
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <link rel="icon" type="image/png" href="/icons/icon-192.png" />
     <title>Vreme Tolmin</title>
+    <style>
+      /* Ensure full-height layout so internal overflow scrolling works reliably on mobile browsers */
+      html, body, #root { height: 100%; }
+      /* Help touch scrolling on some Samsung browsers */
+      .scroll-area { -webkit-overflow-scrolling: touch; }
+    </style>
   </head>
   <body>
     <div id="root"></div>
