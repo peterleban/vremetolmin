@@ -332,7 +332,38 @@ export default async function handler(req, res) {
   let weatherData = null;
   try {
     const r = await fetch(`${BASE}/tag_main.html`, { headers: HEADERS, signal: timer(6000) });
-    if (r.ok) weatherData = parseTagMain(await r.text());
+    if (r.ok) {
+      // Try to respect server-declared charset, otherwise fall back to
+      // a heuristic re-decode using Windows-1250 / ISO-8859-2 if mojibake is detected.
+      const contentType = r.headers.get('content-type') || '';
+      let text = null;
+
+      // If server declares a non-utf charset, attempt to decode explicitly
+      const charsetMatch = contentType.match(/charset=([^;]+)/i);
+      if (charsetMatch && /windows-1250|iso-8859-2|latin2|cp1250/i.test(charsetMatch[1])) {
+        try {
+          const buf = await r.arrayBuffer();
+          text = new TextDecoder(charsetMatch[1].trim()).decode(new Uint8Array(buf));
+        } catch (e) {
+          // Fall back to text()
+          text = await r.text();
+        }
+      } else {
+        // Default: read as UTF-8 first
+        text = await r.text();
+        // Heuristic: if we see common mojibake sequences, re-decode as windows-1250
+        if (/[ÂÃÄÄÇÐ]|Ä\u009A|Ä\u008D/.test(text) || /Ã|Ä|â/.test(text)) {
+          try {
+            const buf = await r.arrayBuffer();
+            text = new TextDecoder('windows-1250').decode(new Uint8Array(buf));
+          } catch (e) {
+            // keep original text
+          }
+        }
+      }
+
+      weatherData = parseTagMain(text);
+    }
   } catch (e) {
     console.error('tag_main.html failed:', e.message);
   }
