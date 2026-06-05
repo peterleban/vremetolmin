@@ -220,23 +220,24 @@ const THEMES = {
 }
 
 function deriveCondition(W) {
-  // Prefer the Slovenian condition text from tag_main.html [2]
+  // Decide rain/storm solely from numeric rain rate first
+  const rate = W.rainRate ?? 0
+  if (rate > 5) return 'storm'
+  if (rate > 3) return 'heavy_rain'
+  if (rate > 0) return 'rain'
+
+  // Prefer the Slovenian condition text from tag_main.html [2] for non-rain conditions
   const sl = (W.conditionSL ?? '').toLowerCase()
   if (sl.includes('nevihta') || sl.includes('storm'))     return 'storm'
   if (sl.includes('sneg') || sl.includes('snow'))         return 'snow'
   if (sl.includes('megla') || sl.includes('fog') || sl.includes('meglica')) return 'fog'
   if (sl.includes('noc') || sl.includes('night'))         return 'night'
-  if (sl.includes('dez') || sl.includes('plohe') || sl.includes('rain')) {
-    const rate = W.rainRate ?? 0
-    return rate > 3 ? 'heavy_rain' : 'rain'
-  }
   if (sl.includes('oblacn') || sl.includes('oblačn') || sl.includes('cloud')) return 'cloudy'
   if (sl.includes('delno') || sl.includes('partly'))      return 'partly_cloudy'
   if (sl.includes('jasno') || sl.includes('soncno') || sl.includes('sunny') || sl.includes('clear')) return 'sunny'
-  // Fallback to numeric
-  const solar = W.solar ?? 500, rain = W.rain ?? 0, rate = W.rainRate ?? 0
-  if (rate > 5) return 'storm'
-  if (rain > 0 || rate > 0) return 'rain'
+
+  // Fallback to solar-based heuristic when no other signal
+  const solar = W.solar ?? 500
   if (solar < 100) return 'cloudy'
   if (solar < 380) return 'partly_cloudy'
   return 'sunny'
