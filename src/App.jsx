@@ -766,7 +766,7 @@ export default function App() {
   const dateStr = new Date().toLocaleDateString('sl-SI',{weekday:'long',day:'numeric',month:'long'})
 
   return (
-    <div style={{height:'100%',maxWidth:430,margin:'0 auto',fontFamily:"'Outfit',system-ui,sans-serif",color:T.textPrimary,position:'relative',overflow:'hidden',display:'flex',flexDirection:'column'}}>
+    <div style={{minHeight:'100vh',maxWidth:430,margin:'0 auto',fontFamily:"'Outfit',system-ui,sans-serif",color:T.textPrimary,position:'relative',overflow:'hidden',display:'flex',flexDirection:'column'}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
         *{box-sizing:border-box;margin:0;padding:0}
