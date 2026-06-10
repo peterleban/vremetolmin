@@ -113,8 +113,8 @@ const THEMES = {
     accent:'#334e68',
     textPrimary:'#0f172a',
     textMuted:'#24374a',
-    textDim:'#cbd5e1',
-    heroTemp:'#e2e8f0',
+    textDim:'#1f2937',
+    heroTemp:'#111827',
     heroLow:'#1d4ed8',
     heroHigh:'#b91c1c',
     heroDew:'#334155',
@@ -131,9 +131,10 @@ const THEMES = {
     accent:'#1d4ed8',
     textPrimary:'#0f172a',
     textMuted:'#334155',
-    textDim:'#cbd5e1',
-    heroTemp:'#e2e8f0',
-    heroLow:'#1d4ed8',
+    textDim:'#475569',
+    mainTemp:'#e2e8f0',
+    heroTemp:'#0f172a',
+    heroLow:'#2563eb',
     heroHigh:'#b91c1c',
     heroDew:'#334155',
     label:'DEŽ 🌧️',
@@ -150,8 +151,9 @@ const THEMES = {
     accent:'#2563eb',
     textPrimary:'#0f172a',
     textMuted:'#334155',
-    textDim:'#cbd5e1',
-    heroTemp:'#e2e8f0',
+    textDim:'#475569',
+    mainTemp:'#e2e8f0',
+    heroTemp:'#0f172a',
     heroLow:'#2563eb',
     heroHigh:'#b91c1c',
     heroDew:'#334155',
@@ -170,8 +172,9 @@ const THEMES = {
     accent:'#6366f1',
     textPrimary:'#111827',
     textMuted:'#374151',
-    textDim:'#cbd5e1',
-    heroTemp:'#f8fafc',
+    textDim:'#111316',
+    mainTemp:'#f8fafc',
+    heroTemp:'#111827',
     heroLow:'#4338ca',
     heroHigh:'#b91c1c',
     heroDew:'#334155',
@@ -211,6 +214,7 @@ const THEMES = {
     textPrimary:'#0f172a',
     textMuted:'#334155',
     textDim:'#1f2937',
+    mainTemp:'#cbd5e1',
     heroTemp:'#111827',
     heroLow:'#2563eb',
     heroHigh:'#b91c1c',
@@ -763,6 +767,7 @@ export default function App() {
 
   const tempNum = parseFloat(temp)
   const tempCol = isNaN(tempNum)?T.heroTemp:tempNum<0?'#93c5fd':tempNum<10?'#67e8f9':tempNum<20?T.heroTemp:tempNum<28?'#fbbf24':'#fb923c'
+  const mainTemp = T.mainTemp ?? tempCol
   const dateStr = new Date().toLocaleDateString('sl-SI',{weekday:'long',day:'numeric',month:'long'})
 
   return (
@@ -829,13 +834,13 @@ export default function App() {
         {tab==='zdaj'&&(
           <div className="fade-up" style={{padding:'4px 15px 0'}}>
             <div style={{padding:'16px 4px 14px'}}>
-              {T.label && <div style={{fontSize:13,color:T.textMuted,fontWeight:600,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.04em'}}>{T.label}</div>}
+              {T.label && <div style={{fontSize:13,color:T.mainTemp,fontWeight:600,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.04em'}}>{T.label}</div>}
               <div style={{display:'flex',alignItems:'flex-end',gap:4}}>
                 {loading
                   ?<div style={{width:130,height:76,borderRadius:8,background:T.card,animation:'pulse 1.5s infinite'}}/>
-                  :<><span style={{fontFamily:"'DM Mono',monospace",fontSize:84,lineHeight:1,fontWeight:400,color:tempCol,letterSpacing:'-0.03em',textShadow:'0 2px 12px rgba(0,0,0,0.25)'}}>{temp}</span>
-                    <span style={{fontSize:30,color:T.textDim,marginBottom:12}}>°C</span>
-                    <span style={{fontSize:12,color:T.textDim,marginBottom:12}}>{tempChange}°C/h</span>
+                  :<><span style={{fontFamily:"'DM Mono',monospace",fontSize:84,lineHeight:1,fontWeight:400,color:mainTemp,letterSpacing:'-0.03em',textShadow:'0 2px 12px rgba(0,0,0,0.25)'}}>{temp}</span>
+                    <span style={{fontSize:30,color:mainTemp,marginBottom:12}}>°C</span>
+                    <span style={{fontSize:12,color:mainTemp,marginBottom:12}}>{tempChange}°C/h</span>
                     </>
                 }
               </div>
