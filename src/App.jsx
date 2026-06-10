@@ -113,8 +113,8 @@ const THEMES = {
     accent:'#334e68',
     textPrimary:'#0f172a',
     textMuted:'#24374a',
-    textDim:'#1f2937',
-    heroTemp:'#111827',
+    textDim:'#cbd5e1',
+    heroTemp:'#e2e8f0',
     heroLow:'#1d4ed8',
     heroHigh:'#b91c1c',
     heroDew:'#334155',
@@ -131,8 +131,8 @@ const THEMES = {
     accent:'#1d4ed8',
     textPrimary:'#0f172a',
     textMuted:'#334155',
-    textDim:'#475569',
-    heroTemp:'#0f172a',
+    textDim:'#cbd5e1',
+    heroTemp:'#e2e8f0',
     heroLow:'#1d4ed8',
     heroHigh:'#b91c1c',
     heroDew:'#334155',
@@ -150,8 +150,8 @@ const THEMES = {
     accent:'#2563eb',
     textPrimary:'#0f172a',
     textMuted:'#334155',
-    textDim:'#475569',
-    heroTemp:'#0f172a',
+    textDim:'#cbd5e1',
+    heroTemp:'#e2e8f0',
     heroLow:'#2563eb',
     heroHigh:'#b91c1c',
     heroDew:'#334155',
@@ -170,8 +170,8 @@ const THEMES = {
     accent:'#6366f1',
     textPrimary:'#111827',
     textMuted:'#374151',
-    textDim:'#111316',
-    heroTemp:'#111827',
+    textDim:'#cbd5e1',
+    heroTemp:'#f8fafc',
     heroLow:'#4338ca',
     heroHigh:'#b91c1c',
     heroDew:'#334155',
@@ -829,6 +829,7 @@ export default function App() {
         {tab==='zdaj'&&(
           <div className="fade-up" style={{padding:'4px 15px 0'}}>
             <div style={{padding:'16px 4px 14px'}}>
+              {T.label && <div style={{fontSize:13,color:T.textMuted,fontWeight:600,marginBottom:8,textTransform:'uppercase',letterSpacing:'0.04em'}}>{T.label}</div>}
               <div style={{display:'flex',alignItems:'flex-end',gap:4}}>
                 {loading
                   ?<div style={{width:130,height:76,borderRadius:8,background:T.card,animation:'pulse 1.5s infinite'}}/>
@@ -1138,6 +1139,15 @@ export default function App() {
             <ForecastImageRow title="Aladin" urls={aladinImages} T={T} />
             <ForecastImageRow title="ICON-D2" urls={iconImages} T={T} />
 
+            <Card T={T} style={{marginBottom:11,padding:14}}>
+              <CardTitle icon={<Ico.Cam/>} T={T}>Sinoptična slika nad Evropo</CardTitle>
+              <div style={{borderRadius:12,overflow:'hidden',marginBottom:10}}>
+                <LiveImage src="https://opendata.dwd.de/weather/charts/analysis/Z__C_EDZW_LATEST_tka01%2Cana_bwkman_dwdc_O_000000_000000_LATEST_WV12.png" alt="Sinoptična slika"
+                  imgStyle={{borderRadius:12,maxHeight:300,objectFit:'cover',objectPosition:'50% 55%'}}
+                  fallbackText="Slika ni dosegljiva" T={T}/>
+              </div>
+              <div style={{fontSize:11,color:T.textDim,textAlign:'right',marginBottom:10}}>Vir: dwd.de</div>
+            </Card> 
             </p>
 
           </div>
