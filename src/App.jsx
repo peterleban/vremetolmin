@@ -114,6 +114,7 @@ const THEMES = {
     textPrimary:'#0f172a',
     textMuted:'#24374a',
     textDim:'#1f2937',
+    mainTemp:'#cbd5e1',
     heroTemp:'#111827',
     heroLow:'#1d4ed8',
     heroHigh:'#b91c1c',
@@ -1057,6 +1058,11 @@ export default function App() {
         {tab === 'napoved' && (
           <div className="fade-up" style={{ padding: '20px 15px 0' }}>
 
+            <Card T={T} style={{marginBottom:11}}>
+              <CardTitle T={T}>Napoved za Tolmin</CardTitle>
+              <p>Napoved je izračunana s programskim paketom WXSIM in velja za mesto Tolmin.</p>
+            </Card>
+
             {/* NEW CLEAN FORECAST TABLE */}
             {Array.isArray(forecast) && forecast.map((day, i) => (
               <Card key={i + (day.title||day.period||i)} T={T} style={{ marginBottom: 10 }}>
@@ -1133,26 +1139,16 @@ export default function App() {
               lineHeight: 1.6,
               padding: '0 4px'
             }}>
-              Napoved WXSIM (hobi)
 
             <Card T={T} style={{marginBottom:11}}>
-              <CardTitle T={T}>Vremenski modeli</CardTitle>
-              <Row label="ALADIN (ob 6h, 12h, 18h in 24h)"    value={'vir: ARSO'} T={T}/>
-              <Row label="ICON-D2 (ob 4h, 7h, 10h, ...)"    value={'vir: dwd.de'} T={T}/>
+              <CardTitle T={T}>Drugi vremenski modeli</CardTitle>
+              <p>Napovedi za količino padavin v izbranih (označenih) intervalih so povzete
+                iz modelov ALADIN (vir: ARSO) in ICON-D2 (vir: dwd.de). Osvežujejo se na 6 ur (ALADIN) oz. na 3 ure (ICON-D2).</p>
             </Card>
 
             <ForecastImageRow title="Aladin" urls={aladinImages} T={T} />
             <ForecastImageRow title="ICON-D2" urls={iconImages} T={T} />
 
-            <Card T={T} style={{marginBottom:11,padding:14}}>
-              <CardTitle icon={<Ico.Cam/>} T={T}>Sinoptična slika nad Evropo</CardTitle>
-              <div style={{borderRadius:12,overflow:'hidden',marginBottom:10}}>
-                <LiveImage src="https://opendata.dwd.de/weather/charts/analysis/Z__C_EDZW_LATEST_tka01%2Cana_bwkman_dwdc_O_000000_000000_LATEST_WV12.png" alt="Sinoptična slika"
-                  imgStyle={{borderRadius:12,maxHeight:300,objectFit:'cover',objectPosition:'50% 55%'}}
-                  fallbackText="Slika ni dosegljiva" T={T}/>
-              </div>
-              <div style={{fontSize:11,color:T.textDim,textAlign:'right',marginBottom:10}}>Vir: dwd.de</div>
-            </Card> 
             </p>
 
           </div>
@@ -1184,7 +1180,7 @@ export default function App() {
             <Card T={T} style={{marginBottom:11,padding:14}}>
               <CardTitle icon='📡' T={T}>Satelitska slika (METEOR M2-3/4)</CardTitle>
               <div style={{borderRadius:12,overflow:'hidden',marginBottom:10}}>
-                <LiveImage src="https://www.vremetolmin.si/sateliti/sat_zadnja.jpg" alt="Satelitska slika"
+                <LiveImage src="https://www.vremetolmin.si/sateliti/sat_zadnja_th.jpg" alt="Satelitska slika"
                   imgStyle={{borderRadius:12,height:'100%',objectFit:'cover',objectPosition:'50% 55%'}}
                   fallbackText="Satelitska slika ni na voljo" T={T}/>
               </div>
@@ -1263,7 +1259,7 @@ export default function App() {
               </Card>
             ))}
             <p style={{fontSize:10,color:T.textDim,textAlign:'center',marginTop:14,lineHeight:1.7}}>
-              Spletno mesto vremetolmin.sizagotavlja novagorica.eu<br/>
+              Spletno mesto vremetolmin.si zagotavlja novagorica.eu<br/>
             </p>
           </div>
         )}
