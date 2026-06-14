@@ -1060,7 +1060,11 @@ export default function App() {
 
             <Card T={T} style={{marginBottom:11}}>
               <CardTitle T={T}>Napoved za Tolmin</CardTitle>
-              <p>Napoved je izračunana s programskim paketom WXSIM in velja za mesto Tolmin.</p>
+              <div style={{
+                    fontSize: 13,
+                    color: T.textMuted,
+                    lineHeight: 1.6
+                  }}>Napoved je izračunana s programskim paketom WXSIM in velja za mesto Tolmin.<br/>Napoved osvežena: {W.updated}</div>
             </Card>
 
             {/* NEW CLEAN FORECAST TABLE */}
@@ -1121,7 +1125,7 @@ export default function App() {
               </Card>
             ))}
 
-            {/* Updated timestamp */}
+            {/* Updated timestamp 
             {W?.updated && (
               <div style={{
                 fontSize: 10,
@@ -1131,7 +1135,7 @@ export default function App() {
               }}>
                 Napoved osvežena: {W.updated}
               </div>
-            )}
+            )}  */}
            <p style={{
               fontSize: 10,
               color: T.textDim,
@@ -1142,8 +1146,12 @@ export default function App() {
 
             <Card T={T} style={{marginBottom:11}}>
               <CardTitle T={T}>Drugi vremenski modeli</CardTitle>
-              <p>Napovedi za količino padavin v izbranih (označenih) intervalih so povzete
-                iz modelov ALADIN (vir: ARSO) in ICON-D2 (vir: dwd.de). Osvežujejo se na 6 ur (ALADIN) oz. na 3 ure (ICON-D2).</p>
+              <div style={{
+                    fontSize: 13,
+                    color: T.textMuted,
+                    lineHeight: 1.6
+                  }}>Napovedi za količino padavin v izbranih (označenih) intervalih so povzete
+                iz modelov ALADIN (vir: ARSO) in ICON-D2 (vir: dwd.de). Osvežujejo se na 6 ur (ALADIN) oz. na 3 ure (ICON-D2).</div>
             </Card>
 
             <ForecastImageRow title="Aladin" urls={aladinImages} T={T} />
