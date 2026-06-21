@@ -227,20 +227,20 @@ const THEMES = {
 function deriveCondition(W) {
   // Decide rain/storm solely from numeric rain rate first
   const rate = W.rainRate ?? 0
-  if (rate > 5) return 'storm'
-  if (rate > 3) return 'heavy_rain'
-  if (rate > 0) return 'rain'
+  if (rate > 50) return 'storm'
+  if (rate > 30) return 'heavy_rain'
+  if (rate > 3) return 'rain'
 
   // Prefer the Slovenian condition text from tag_main.html [2] for non-rain conditions
   const sl = (W.conditionSL ?? '').toLowerCase()
   if (sl.includes('nevihta') || sl.includes('storm'))     return 'storm'
   if (sl.includes('sneg') || sl.includes('snow'))         return 'snow'
   if (sl.includes('megla') || sl.includes('fog') || sl.includes('meglica')) return 'fog'
-  if (sl.includes('noc') || sl.includes('night'))         return 'night'
+  if (sl.includes('noc') || sl.includes('night') || sl.includes('noč'))        return 'night'
   if (sl.includes('oblacn') || sl.includes('oblačn') || sl.includes('cloud')) return 'cloudy'
   if (sl.includes('delno') || sl.includes('partly'))      return 'partly_cloudy'
   if (sl.includes('jasno') || sl.includes('soncno') || sl.includes('sunny') || sl.includes('clear')) return 'sunny'
-
+  
   // Fallback to solar-based heuristic when no other signal
   const solar = W.solar ?? 500
   if (solar < 100) return 'cloudy'
@@ -850,6 +850,16 @@ export default function App() {
                 <span style={{fontFamily:"'DM Mono',monospace",fontSize:14,color:T.heroHigh,fontWeight:600,textShadow:'0 1px 1px rgba(0,0,0,0.3)'}}>↑ {tempMax}°</span>
               </div>
             </div>
+
+            {W.thsw >= temp + 4 && (
+              <Card T={T} style={{marginBottom:11}}>
+                <CardTitle icon={<Ico.Therm/>} T={T}>Vročinski indeksi</CardTitle>
+                <div style={{display:'flex',justifyContent:'space-around',flexWrap:'wrap',gap:2}}>
+                  <Row label="Vročinski indeks"            value={`${d(W.thsw)}°C`} T={T}/>
+                  <Row label="Temp.vlažnega termometra"    value={`${d(W.wetbulb)}°C`} T={T}/>
+                </div>
+              </Card>
+            )}
 
             <Card T={T} style={{marginBottom:11}}>
               <div style={{display:'flex',justifyContent:'space-around',flexWrap:'wrap',gap:2}}>
