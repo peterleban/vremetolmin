@@ -854,10 +854,10 @@ export default function App() {
             {W.thsw >= temp + 4 && (
               <Card T={T} style={{marginBottom:11}}>
                 <CardTitle icon={<Ico.Therm/>} T={T}>Vročinski indeksi</CardTitle>
-                <div style={{display:'flex',justifyContent:'space-around',flexWrap:'wrap',gap:2}}>
+
                   <Row label="Vročinski indeks"            value={`${d(W.thsw)}°C`} T={T}/>
                   <Row label="Temp.vlažnega termometra"    value={`${d(W.wetbulb)}°C`} T={T}/>
-                </div>
+
               </Card>
             )}
 
